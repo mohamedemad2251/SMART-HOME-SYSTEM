@@ -3,7 +3,7 @@
 
 #include "../../MCAL/DIO/DIO.h"
 
-#define KEYPAD_PORT DIO_PortC
+#define KEYPAD_PORT DIO_PortB
 
 #define KEYPAD_ROWS 4
 #define KEYPAD_COLUMNS 4

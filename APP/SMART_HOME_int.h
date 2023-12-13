@@ -18,6 +18,7 @@
 #define ACCESS_MODE		ADMIN_MODE
 #define SYSTEM_MODE		RESET
 
+#define ENTER_BUTTON	10
 //			ADD YOUR DEFINITIONS HERE
 //==========================================================================
 

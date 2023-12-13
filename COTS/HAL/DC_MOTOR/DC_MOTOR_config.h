@@ -18,11 +18,11 @@
 #define DC_MOTOR1_PWM_FREQUENCY	50
 
 #define DC_MOTOR2_IN1_PORT	DIO_PortD
-#define DC_MOTOR2_IN1_PIN	Pin0
+#define DC_MOTOR2_IN1_PIN	Pin2
 #define DC_MOTOR2_IN2_PORT	DIO_PortD
-#define DC_MOTOR2_IN2_PIN	Pin1
+#define DC_MOTOR2_IN2_PIN	Pin3
 #define DC_MOTOR2_EN_PORT	DIO_PortD
-#define DC_MOTOR2_EN_PIN	Pin7
+#define DC_MOTOR2_EN_PIN	Pin6
 
 
 #endif /* DC_MOTOR_CONFIG_H_ */
