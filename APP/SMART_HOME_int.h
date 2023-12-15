@@ -15,10 +15,19 @@
 #define	LOGIN_MODE		1
 #define	CONTROL_MODE	2
 
-#define ACCESS_MODE		ADMIN_MODE
-#define SYSTEM_MODE		RESET
+#define ENTER_BUTTON	'\r'		//When user/admin enters the name and password, that's the termination character to process the data.
+#define MAX_VIRTUAL_USER_CHAR	10	//Max characters to be entered as username in virtual terminal = 10 (SPACE included)
+#define MAX_VIRTUAL_USER_PASS	10	//Max characters to be entered as password in virtual terminal = 10 (SPACE included)
+#define MAX_KEYPAD_USER_CHAR	4	//Max characters to be entered as username = 10 (SPACE included)
+#define MAX_KEYPAD_USER_PASS	4	//Max characters to be entered as password = 10 (SPACE included)
+#define MAX_USERS				3	//Max number of users allowed in the program
+#define MAX_LOGIN_TRIALS		3	//Max number of login trials the user can do before the systems locks him down
 
-#define ENTER_BUTTON	10
+#define USER_SELECTION_1				'1'
+#define USER_SELECTION_2				'2'
+#define USER_SELECTION_3				'3'
+
+
 //			ADD YOUR DEFINITIONS HERE
 //==========================================================================
 

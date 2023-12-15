@@ -96,9 +96,9 @@ STD_Type MCAL_UART_u8Init(void)
 STD_Type MCAL_UART_u8SendData(u8 LOC_u8Data)
 {
 	//HAL_LCD_u8WriteString("Data Processed!");
-	#if(UART_INTERRUPT == UART_INTERRUPT_OFF)
+//	#if(UART_INTERRUPT == UART_INTERRUPT_OFF)
 	while(!GET_BIT(UCSRA,UDRE));
-	#endif
+//	#endif
 	UDR = LOC_u8Data;
 
 	return E_OK;
