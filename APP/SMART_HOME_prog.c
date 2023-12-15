@@ -28,9 +28,9 @@ KeypadUser GLOB_KeypadUserProfile[MAX_USERS];
 
 void InitiateCredentialsTest(void)	//Should be removed on release
 {
-	GLOB_VirtualUserProfile[0] = (const VirtualUser){"Hamada","010"};	//Change in these for testing
-	GLOB_VirtualUserProfile[1] = (const VirtualUser){"Helaal","010"};
-	GLOB_VirtualUserProfile[2] = (const VirtualUser){"Aloo","010"};
+	GLOB_VirtualUserProfile[0] = (const VirtualUser){"Hamada","123"};	//Change in these for testing
+	GLOB_VirtualUserProfile[1] = (const VirtualUser){"Helal","100100300"};
+	GLOB_VirtualUserProfile[2] = (const VirtualUser){"Abo3amo","Ta3meya"};
 }
 
 //============================CALLBACK FUNCTIONS==============================	//These functions don't follow the naming convention
@@ -73,118 +73,114 @@ static STD_Type APP_SMART_HOME_u8AdminLogin(void)
 	static u8 LOC_u8ProfileNo;		//Which profile the algorithm is searching for now
 	VirtualUser LOC_VirtualUserProfile;	//User credentials entered, which will be compared with the saved ones
 	
-	while(LOC_u8LoginError == TRUE)
+	while(LOC_u8LoginError == TRUE && LOC_u8LoginTrials < MAX_LOGIN_TRIALS)
 	{
-		while(LOC_u8LoginError == TRUE && LOC_u8LoginTrials < MAX_LOGIN_TRIALS)
+		MCAL_UART_u8SendWord("Please enter your username: ");
+		while( (LOC_u8UARTData != ENTER_BUTTON) )
 		{
-			MCAL_UART_u8SendWord("Please enter your username: ");
-			while( (LOC_u8UARTData != ENTER_BUTTON) )
+			if(LOC_u8CharCount < MAX_VIRTUAL_USER_CHAR)
 			{
-				if(LOC_u8CharCount < MAX_VIRTUAL_USER_CHAR)
+				MCAL_UART_u8GetData(&LOC_u8UARTData);
+				MCAL_UART_u8SendData(LOC_u8UARTData);
+				if(LOC_u8UARTData == ENTER_BUTTON)
 				{
-					MCAL_UART_u8GetData(&LOC_u8UARTData);
-					MCAL_UART_u8SendData(LOC_u8UARTData);
-					if(LOC_u8UARTData == ENTER_BUTTON)
-					{
-						LOC_VirtualUserProfile.username[LOC_u8CharCount] = NULL;
-					}
-					else if(LOC_u8UARTData)
-					{
-						LOC_VirtualUserProfile.username[LOC_u8CharCount] = LOC_u8UARTData;
-						LOC_u8CharCount++;
-					}
+					LOC_VirtualUserProfile.username[LOC_u8CharCount] = NULL;
 				}
-				else
+				else if(LOC_u8UARTData)
 				{
-					LOC_u8UARTData = ENTER_BUTTON;
+					LOC_VirtualUserProfile.username[LOC_u8CharCount] = LOC_u8UARTData;
+					LOC_u8CharCount++;
 				}
 			}
-			while(LOC_u8ProfileNo < MAX_USERS && LOC_u8LoginError == TRUE)
+			else
 			{
-				for(LOC_u8Iterations;LOC_u8Iterations<LOC_u8CharCount;LOC_u8Iterations++)
-				{
-					if(LOC_VirtualUserProfile.username[LOC_u8Iterations] != GLOB_VirtualUserProfile[LOC_u8ProfileNo].username[LOC_u8Iterations])
-					{
-						LOC_u8LoginError = TRUE;
-						LOC_u8ProfileNo++;
-						break;
-					}
-					else
-					{
-						LOC_u8LoginError = FALSE;
-					}
-				}
-				LOC_u8Iterations = ZERO;
-			}
-			if(LOC_u8LoginError == TRUE)
-			{
-				MCAL_UART_u8SendWord("Error!\rUsername doesn't exist!\rTrials left: ");
-				LOC_u8LoginTrials++;
-				MCAL_UART_u8SendData((MAX_LOGIN_TRIALS - LOC_u8LoginTrials)+ASCII);
-				MCAL_UART_u8SendData(ENTER_BUTTON);
-				LOC_u8UARTData = ZERO;
-				LOC_u8LoginError = TRUE;
-				LOC_u8Iterations = ZERO;
-				LOC_u8CharCount = ZERO;
-				LOC_u8ProfileNo = ZERO;
+				LOC_u8UARTData = ENTER_BUTTON;
 			}
 		}
-		LOC_u8UARTData = ZERO;
-		LOC_u8LoginError = TRUE;
-		LOC_u8Iterations = ZERO;
-		LOC_u8CharCount = ZERO;
-		//LOC_u8ProfileNo = ZERO;	//We want to keep the profile number because password has to match username
-		while(LOC_u8LoginError == TRUE && LOC_u8LoginTrials < MAX_LOGIN_TRIALS)
+		while(LOC_u8ProfileNo < MAX_USERS && LOC_u8LoginError == TRUE)
 		{
-			MCAL_UART_u8SendWord("Please enter your password: ");
-			while( (LOC_u8UARTData != ENTER_BUTTON) )
+			for(LOC_u8Iterations;LOC_u8Iterations<LOC_u8CharCount;LOC_u8Iterations++)
 			{
-				if(LOC_u8CharCount < MAX_VIRTUAL_USER_PASS)
+				if(LOC_VirtualUserProfile.username[LOC_u8Iterations] != GLOB_VirtualUserProfile[LOC_u8ProfileNo].username[LOC_u8Iterations])
 				{
-					MCAL_UART_u8GetData(&LOC_u8UARTData);
-					MCAL_UART_u8SendData(LOC_u8UARTData);
-					if(LOC_u8UARTData == ENTER_BUTTON)
-					{
-						LOC_VirtualUserProfile.password[LOC_u8CharCount] = NULL;
-					}
-					else if(LOC_u8UARTData)
-					{
-						LOC_VirtualUserProfile.password[LOC_u8CharCount] = LOC_u8UARTData;
-						LOC_u8CharCount++;
-					}
+					LOC_u8LoginError = TRUE;
+					LOC_u8ProfileNo++;
+					break;
 				}
 				else
 				{
-					LOC_u8UARTData = ENTER_BUTTON;
+					LOC_u8LoginError = FALSE;
 				}
 			}
-			if(LOC_u8LoginError == TRUE)
+			LOC_u8Iterations = ZERO;
+		}
+		if(LOC_u8LoginError == TRUE)
+		{
+			MCAL_UART_u8SendWord("Error!\rUsername doesn't exist!\rTrials left: ");
+			LOC_u8LoginTrials++;
+			MCAL_UART_u8SendData((MAX_LOGIN_TRIALS - LOC_u8LoginTrials)+ASCII);
+			MCAL_UART_u8SendData(ENTER_BUTTON);
+			LOC_u8UARTData = ZERO;
+			LOC_u8LoginError = TRUE;
+			LOC_u8Iterations = ZERO;
+			LOC_u8CharCount = ZERO;
+			LOC_u8ProfileNo = ZERO;
+		}
+	}
+	LOC_u8UARTData = ZERO;
+	LOC_u8LoginError = TRUE;
+	LOC_u8Iterations = ZERO;
+	LOC_u8CharCount = ZERO;
+	//LOC_u8ProfileNo = ZERO;	//We want to keep the profile number because password has to match username
+	while(LOC_u8LoginError == TRUE && LOC_u8LoginTrials < MAX_LOGIN_TRIALS)
+	{
+		MCAL_UART_u8SendWord("Please enter your password: ");
+		while( (LOC_u8UARTData != ENTER_BUTTON) )
+		{
+			if(LOC_u8CharCount < MAX_VIRTUAL_USER_PASS)
 			{
-				for(LOC_u8Iterations;LOC_u8Iterations<LOC_u8CharCount;LOC_u8Iterations++)
+				MCAL_UART_u8GetData(&LOC_u8UARTData);
+				MCAL_UART_u8SendData(LOC_u8UARTData);
+				if(LOC_u8UARTData == ENTER_BUTTON)
 				{
-					if(LOC_VirtualUserProfile.password[LOC_u8Iterations] != GLOB_VirtualUserProfile[LOC_u8ProfileNo].password[LOC_u8Iterations])
-					{
-						LOC_u8LoginError = TRUE;
-						break;
-					}
-					else
-					{
-						LOC_u8LoginError = FALSE;
-					}
+					LOC_VirtualUserProfile.password[LOC_u8CharCount] = NULL;
+				}
+				else if(LOC_u8UARTData)
+				{
+					LOC_VirtualUserProfile.password[LOC_u8CharCount] = LOC_u8UARTData;
+					LOC_u8CharCount++;
 				}
 			}
-			if(LOC_u8LoginError == TRUE)
+			else
 			{
-				MCAL_UART_u8SendWord("Error!\rPassword is incorrect!\rTrials left: ");
-				LOC_u8LoginTrials++;
-				MCAL_UART_u8SendData((MAX_LOGIN_TRIALS - LOC_u8LoginTrials)+ASCII);
-				MCAL_UART_u8SendData(ENTER_BUTTON);
-				LOC_u8UARTData = ZERO;
-				LOC_u8LoginError = TRUE;
-				LOC_u8Iterations = ZERO;
-				LOC_u8CharCount = ZERO;
-				LOC_u8ProfileNo = ZERO;
+				LOC_u8UARTData = ENTER_BUTTON;
 			}
+		}
+		if(LOC_u8LoginError == TRUE)
+		{
+			for(LOC_u8Iterations;LOC_u8Iterations<LOC_u8CharCount;LOC_u8Iterations++)
+			{
+				if(LOC_VirtualUserProfile.password[LOC_u8Iterations] != GLOB_VirtualUserProfile[LOC_u8ProfileNo].password[LOC_u8Iterations])
+				{
+					LOC_u8LoginError = TRUE;
+					break;
+				}
+				else
+				{
+					LOC_u8LoginError = FALSE;
+				}
+			}
+		}
+		if(LOC_u8LoginError == TRUE)
+		{
+			MCAL_UART_u8SendWord("Error!\rPassword is incorrect!\rTrials left: ");
+			LOC_u8LoginTrials++;
+			MCAL_UART_u8SendData((MAX_LOGIN_TRIALS - LOC_u8LoginTrials)+ASCII);
+			MCAL_UART_u8SendData(ENTER_BUTTON);
+			LOC_u8UARTData = ZERO;
+			LOC_u8LoginError = TRUE;
+			LOC_u8Iterations = ZERO;
+			LOC_u8CharCount = ZERO;
 		}
 	}
 	if(LOC_u8LoginError == FALSE)
@@ -192,8 +188,9 @@ static STD_Type APP_SMART_HOME_u8AdminLogin(void)
 		MCAL_UART_u8SendWord("\r\rLogged In Successfully!\r");
 		
 		MCAL_UART_u8SuspendInterrupt();
-		HAL_LCD_u8WriteString("You entered: ");
+		HAL_LCD_u8WriteString("Welcome, ");
 		HAL_LCD_u8WriteString(LOC_VirtualUserProfile.username);
+		HAL_LCD_u8WriteChar('!');
 		MCAL_UART_u8ResumeInterrupt();
 		
 		LOC_u8ReturnValue = E_OK;
@@ -254,14 +251,7 @@ static STD_Type APP_SMART_HOME_u8FeatureSelect(u8 LOC_u8AppMode)	//The selector 
 				MCAL_UART_u8ResumeInterrupt();
 				break;
 			case LOGIN_MODE:
-				switch(GLOB_u8AccessMode)
-				{
-					case ADMIN_MODE:
-						APP_SMART_HOME_u8SelectAccess();
-						break;
-					case USER_MODE:
-						break;
-				}
+				APP_SMART_HOME_u8SelectAccess();
 				break;
 			case CONTROL_MODE:
 				break;
