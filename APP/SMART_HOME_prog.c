@@ -62,6 +62,89 @@ static STD_Type APP_SMART_HOME_u8Reset(void)
 	return LOC_u8ReturnValue;
 }
 
+static STD_Type APP_SMART_HOME_u8LightLamp(u8 LOC_u8Choice,u8 LOC_u8LampState)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	if(LOC_u8Choice < MAX_LAMPS && LOC_u8LampState <= HIGH)
+	{
+		switch(LOC_u8Choice)
+		{
+			case LAMP_1:
+				switch(LOC_u8LampState)
+				{
+					case LOW:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin0,DIO_LOW);
+						break;
+					case HIGH:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin0,DIO_HIGH);
+						break;
+				}
+				break;
+			case LAMP_2:
+				switch(LOC_u8LampState)
+				{
+					case LOW:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin1,DIO_LOW);
+						break;
+					case HIGH:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin1,DIO_HIGH);
+						break;
+				}
+				break;
+			case LAMP_3:
+				switch(LOC_u8LampState)
+				{
+					case LOW:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin2,DIO_LOW);
+						break;
+					case HIGH:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin2,DIO_HIGH);
+						break;
+				}
+				break;
+			case LAMP_4:
+				switch(LOC_u8LampState)
+				{
+					case LOW:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin3,DIO_LOW);
+						break;
+					case HIGH:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin3,DIO_HIGH);
+						break;
+				}
+				break;
+			case LAMP_5:
+				switch(LOC_u8LampState)
+				{
+					case LOW:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin4,DIO_LOW);
+						break;
+					case HIGH:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin4,DIO_HIGH);
+						break;
+				}
+				break;
+			case LAMP_6:
+				switch(LOC_u8LampState)
+				{
+					case LOW:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin5,DIO_LOW);
+						break;
+					case HIGH:
+						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin5,DIO_HIGH);
+						break;
+				}
+				break;
+		}
+		LOC_u8ReturnValue = E_OK;
+	}
+	else
+	{
+		//do nothing
+	}
+	return LOC_u8ReturnValue;
+}
+
 static STD_Type APP_SMART_HOME_u8AdminLogin(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
