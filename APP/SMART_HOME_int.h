@@ -28,6 +28,15 @@
 #define USER_SELECTION_3				'3'
 
 
+#define MAX_LAMPS       6
+#define LAMP_1			0
+#define LAMP_2			1
+#define LAMP_3			2
+#define LAMP_4			3
+#define LAMP_5			4
+#define LAMP_6			5
+
+
 //			ADD YOUR DEFINITIONS HERE
 //==========================================================================
 
