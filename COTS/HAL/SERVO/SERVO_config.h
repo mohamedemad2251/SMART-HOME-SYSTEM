@@ -16,7 +16,7 @@
 #define SERVO_LOGIC	SERVO_PWM
 
 #define SERVO_MIN_DEG 0
-#define	SERVO_MAX_DEG 180
+#define	SERVO_MAX_DEG 90
 
 #define SERVO_HARD_LEFT_TIME 1000	//ms
 #define SERVO_LEFT_TIME 1250	//ms

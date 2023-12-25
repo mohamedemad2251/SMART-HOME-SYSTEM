@@ -5,7 +5,7 @@
  *      Author: 20155
  */
 #include "../../MCAL/MCAL_TWI/MCAL_TWI_Private.h"
-#include"../../DEFS/STD_types.h"
+#include "../../../DEFS/STD_types.h"
 
 #ifndef HAL_HAL_EEPROM_HAL_EEPROM_H_
 #define HAL_HAL_EEPROM_HAL_EEPROM_H_

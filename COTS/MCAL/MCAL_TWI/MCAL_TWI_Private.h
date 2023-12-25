@@ -5,7 +5,7 @@
  *      Author: 20155
  */
 
-#include "../../STD_Type.h"
+#include "../../../DEFS/STD_types.h"
 
 #ifndef MCAL_MCAL_I2C_MCAL_I2C_H_
 #define MCAL_MCAL_I2C_MCAL_I2C_H_

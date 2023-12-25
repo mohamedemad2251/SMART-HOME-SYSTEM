@@ -4,7 +4,7 @@
  *  Created on: Nov 17, 2023
  *      Author: 20155
  */
-#include"HAL_EEPROM.h"
+#include "HAL_EEPROM.h"
 #include <util/delay.h>
 
 u8 HAL_EEPROM_u8Init(void)
@@ -28,7 +28,7 @@ u8 HAL_EEPROM_u8WriteByte(u16 LOC_u16EEPROMDataAddress, u8 LOC_u8data)  /*Write 
 	MCAL_TWI_u8Write_Byte((u8) LOC_u16EEPROMDataAddress);
 	MCAL_TWI_u8Write_Byte(LOC_u8data);
 	LOC_u8ReturnValue = MCAL_TWI_u8Stop();
-	_delay_ms(EEPROM_DELAY);
+	_delay_us(EEPROM_DELAY);
 	}
 
 	 return LOC_u8ReturnValue;
@@ -48,7 +48,7 @@ u8 HAL_EEPROM_u8ReadByte(u16 LOC_u16EEPROMDataAddress, u8 * LOC_u8data)   /*Read
 	 MCAL_TWI_u8Send_Slave_Address_With_Read_Req(CONTROL_CODE | ((LOC_u16EEPROMDataAddress & PAGE_CONTROL) >> EIGHT_BITS_SHIFTING) );
 	*LOC_u8data =  MCAL_TWI_u8Read_Byte();
 	 LOC_u8ReturnValue = MCAL_TWI_u8Stop();
-	 _delay_ms(EEPROM_DELAY);
+	 _delay_us(EEPROM_DELAY);
 	}
 
  return LOC_u8ReturnValue;
