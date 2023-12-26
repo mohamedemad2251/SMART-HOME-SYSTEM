@@ -159,6 +159,33 @@ static STD_Type APP_SMART_HOME_u8LightLamp(u8 LOC_u8Choice,u8 LOC_u8LampState)
 	return LOC_u8ReturnValue;
 }
 
+static STD_Type APP_SMART_HOME_u8VirtualControl(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	static u8 LOC_u8Initialized = FALSE;
+	if(LOC_u8Initialized == FALSE)
+	{
+		MCAL_UART_u8SendWord("\r\r\r\r\r\r\r\r\r\r                         CONTROL MODE\r");
+		LOC_u8Initialized = TRUE;
+	}
+	LOC_u8ReturnValue = E_OK;
+	return LOC_u8ReturnValue;
+}
+
+static STD_Type APP_SMART_HOME_u8KeypadControl(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	static u8 LOC_u8Initialized = FALSE;
+	if(LOC_u8Initialized == FALSE)
+	{
+		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8WriteString("In Control Mode!");
+		LOC_u8Initialized = TRUE;
+	}
+	LOC_u8ReturnValue = E_OK;
+	return LOC_u8ReturnValue;
+}
+
 static STD_Type APP_SMART_HOME_u8VirtualLogin(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
@@ -316,66 +343,180 @@ static STD_Type APP_SMART_HOME_u8VirtualLogin(void)
 static STD_Type APP_SMART_HOME_u8KeypadUserLogin(u8 LOC_u8KeypadData)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
-	u8 LOC_u8Count = ZERO;
-	u8 LOC_u8UserCount = ZERO;
-	KeypadUser LOC_KeypadUserProfile = {{},{}};
-		
-	if(LOC_u8KeypadData && LOC_u8KeypadData != KEYPAD_ENTER && LOC_u8KeypadData != KEYPAD_CLEAR)
+	static u8 LOC_u8LoginError = TRUE;	//We initially assume an error exists, we clear that error when the credentials are correct
+	u8 LOC_u8Iterations = ZERO;	//For using for loops, to avoid magical numbers
+	//LOC_u8KeypadData = KEYPAD_CLEAR;	//For receiving data using Keypad
+	u8 LOC_u8CharCount = ZERO;	//To keep count of number of characters entered by user
+	static u8 LOC_u8LoginTrials;	//How many times did the user fail the login
+	static u8 LOC_u8ProfileNo;		//Which profile the algorithm is searching for now
+	KeypadUser LOC_KeypadUserProfile = {{},{}};	//User credentials entered, which will be compared with the saved ones
+
+	while(LOC_u8LoginError == TRUE && LOC_u8LoginTrials < MAX_LOGIN_TRIALS)
 	{
-		LOC_u8KeypadData = NULL_CHAR;
 		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8GotoCursor(MIN_X_COOR,MAX_Y_COOR);
+		HAL_LCD_u8WriteString("Trials Left: ");
+		HAL_LCD_u8WriteInteger(MAX_LOGIN_TRIALS - LOC_u8LoginTrials);
 		HAL_LCD_u8GotoCursor(MIN_X_COOR,MIN_Y_COOR);
 		HAL_LCD_u8WriteString("Username: ");
-		while(LOC_u8Count < MAX_KEYPAD_USER_CHAR && LOC_u8KeypadData != KEYPAD_CLEAR && LOC_u8KeypadData != KEYPAD_ENTER)
+		while( (LOC_u8KeypadData != KEYPAD_ENTER) )
 		{
-			HAL_KEYPAD_u8GetButtonPressed(&LOC_u8KeypadData);
-			if(LOC_u8KeypadData && LOC_u8KeypadData <= KEYPAD_MAX_LIMIT && LOC_u8KeypadData >= KEYPAD_MIN_LIMIT)
-			{
-				HAL_LCD_u8WriteChar(LOC_u8KeypadData);
-				LOC_KeypadUserProfile.username[LOC_u8Count] = LOC_u8KeypadData;
-				LOC_u8Count++;
-			}
-		}
-		if(LOC_u8KeypadData != KEYPAD_CLEAR)
-		{
-			LOC_u8Count = ZERO;
-			LOC_u8KeypadData = NULL_CHAR;
-			HAL_LCD_u8GotoCursor(MIN_X_COOR,MAX_Y_COOR);
-			HAL_LCD_u8WriteString("Password: ");
-			while(LOC_u8Count < MAX_KEYPAD_USER_PASS && LOC_u8KeypadData != KEYPAD_CLEAR && LOC_u8KeypadData != KEYPAD_ENTER)
+			if(LOC_u8CharCount < MAX_KEYPAD_USER_CHAR)
 			{
 				HAL_KEYPAD_u8GetButtonPressed(&LOC_u8KeypadData);
-				if(LOC_u8KeypadData && LOC_u8KeypadData <= KEYPAD_MAX_LIMIT && LOC_u8KeypadData >= KEYPAD_MIN_LIMIT)
+				if(LOC_u8KeypadData >= KEYPAD_MIN_LIMIT && LOC_u8KeypadData <= KEYPAD_MAX_LIMIT)
 				{
 					HAL_LCD_u8WriteChar(LOC_u8KeypadData);
-					LOC_KeypadUserProfile.password[LOC_u8Count] = LOC_u8KeypadData;
-					LOC_u8Count++;
 				}
-			}	
-		}
-		if(LOC_u8KeypadData != KEYPAD_CLEAR)
-		{
-			HAL_LCD_u8ClearScreen();
-			HAL_LCD_u8WriteString(LOC_KeypadUserProfile.username);
-			HAL_LCD_u8WriteString(LOC_KeypadUserProfile.password);
-			while(1)
-			{
-				
-			}
-			LOC_u8Count = ZERO;
-			while(LOC_u8UserCount < MAX_USERS)
-			{
-				for(LOC_u8Count;LOC_u8Count < MAX_KEYPAD_USER_CHAR;LOC_u8Count++)
+				if(LOC_u8KeypadData == KEYPAD_CLEAR)
 				{
-					
-				}	
-				LOC_u8UserCount++;
+					return E_OK;
+				}
+				else if(LOC_u8KeypadData == KEYPAD_ENTER)
+				{
+					if(LOC_u8CharCount != ZERO)
+					{
+						LOC_KeypadUserProfile.username[LOC_u8CharCount] = NULL_CHAR;
+					}
+					else
+					{
+						LOC_u8KeypadData = NULL_CHAR;
+					}
+				}
+				else if(LOC_u8KeypadData >= KEYPAD_MIN_LIMIT && LOC_u8KeypadData <= KEYPAD_MAX_LIMIT)
+				{
+					LOC_KeypadUserProfile.username[LOC_u8CharCount] = LOC_u8KeypadData;
+					LOC_u8CharCount++;
+				}
+			}
+			else
+			{
+				LOC_u8KeypadData = KEYPAD_ENTER;
 			}
 		}
+		while(LOC_u8ProfileNo < MAX_USERS && LOC_u8LoginError == TRUE)
+		{
+			for(LOC_u8Iterations;LOC_u8Iterations<MAX_KEYPAD_USER_CHAR;LOC_u8Iterations++)
+			{
+				if(LOC_KeypadUserProfile.username[LOC_u8Iterations] != GLOB_KeypadUserProfile[LOC_u8ProfileNo].username[LOC_u8Iterations])
+				{
+					LOC_u8LoginError = TRUE;
+					LOC_u8ProfileNo++;
+					break;
+				}
+				else
+				{
+					LOC_u8LoginError = FALSE;
+				}
+			}
+			LOC_u8Iterations = ZERO;
+		}
+		if(LOC_u8LoginError == TRUE)
+		{
+			LOC_u8LoginTrials++;
+			LOC_u8KeypadData = ZERO;
+			LOC_u8LoginError = TRUE;
+			LOC_u8Iterations = ZERO;
+			LOC_u8CharCount = ZERO;
+			LOC_u8ProfileNo = ZERO;
+		}
+	}
+
+	LOC_u8KeypadData = ZERO;
+	LOC_u8LoginError = TRUE;
+	LOC_u8Iterations = ZERO;
+	LOC_u8CharCount = ZERO;
+	//LOC_u8ProfileNo = ZERO;	//We want to keep the profile number because password has to match username
+	while(LOC_u8LoginError == TRUE && LOC_u8LoginTrials < MAX_LOGIN_TRIALS)
+	{
+		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8GotoCursor(MIN_X_COOR,MAX_Y_COOR);
+		HAL_LCD_u8WriteString("Trials left: ");
+		HAL_LCD_u8WriteInteger(MAX_LOGIN_TRIALS - LOC_u8LoginTrials);
+		HAL_LCD_u8GotoCursor(MIN_X_COOR,MIN_Y_COOR);
+		HAL_LCD_u8WriteString("Password: ");
+		while( (LOC_u8KeypadData != KEYPAD_ENTER) )
+		{
+			if(LOC_u8CharCount < MAX_KEYPAD_USER_PASS)
+			{
+				HAL_KEYPAD_u8GetButtonPressed(&LOC_u8KeypadData);
+				if(LOC_u8KeypadData >= KEYPAD_MIN_LIMIT && LOC_u8KeypadData <= KEYPAD_MAX_LIMIT)
+				{
+					HAL_LCD_u8WriteChar(LOC_u8KeypadData);
+				}
+				if(LOC_u8KeypadData == KEYPAD_CLEAR)
+				{
+					return E_OK;
+				}
+				else if(LOC_u8KeypadData == KEYPAD_ENTER)
+				{
+					if(LOC_u8CharCount != ZERO)
+					{
+						LOC_KeypadUserProfile.password[LOC_u8CharCount] = NULL_CHAR;
+					}
+					else
+					{
+						LOC_u8KeypadData = NULL_CHAR;
+					}
+				}
+				else if(LOC_u8KeypadData <= KEYPAD_MAX_LIMIT && LOC_u8KeypadData >= KEYPAD_MIN_LIMIT)
+				{
+					LOC_KeypadUserProfile.password[LOC_u8CharCount] = LOC_u8KeypadData;
+					LOC_u8CharCount++;
+				}
+			}
+			else
+			{
+				LOC_u8KeypadData = KEYPAD_ENTER;
+			}
+		}
+		if(LOC_u8LoginError == TRUE)
+		{
+			for(LOC_u8Iterations;LOC_u8Iterations<MAX_KEYPAD_USER_PASS;LOC_u8Iterations++)
+			{
+				if(LOC_KeypadUserProfile.password[LOC_u8Iterations] != GLOB_KeypadUserProfile[LOC_u8ProfileNo].password[LOC_u8Iterations])
+				{
+					LOC_u8LoginError = TRUE;
+					break;
+				}
+				else
+				{
+					LOC_u8LoginError = FALSE;
+				}
+			}
+		}
+		if(LOC_u8LoginError == TRUE)
+		{
+			LOC_u8LoginTrials++;
+			LOC_u8KeypadData = ZERO;
+			LOC_u8LoginError = TRUE;
+			LOC_u8Iterations = ZERO;
+			LOC_u8CharCount = ZERO;
+		}
+	}
+	LOC_u8KeypadData = KEYPAD_ENTER;
+	if(LOC_u8LoginError == FALSE)
+	{
+		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8WriteString("Welcome!");
+		HAL_LCD_u8GotoCursor(MIN_X_COOR,MAX_Y_COOR);
+		HAL_LCD_u8WriteString("Press ON/C!");
+		while(LOC_u8KeypadData != KEYPAD_CLEAR)
+		{
+			HAL_KEYPAD_u8GetButtonPressed(&LOC_u8KeypadData);
+		}
+		GLOB_u8SystemMode = CONTROL_MODE;
+		MCAL_UART_u8ResumeInterrupt();
+		LOC_u8ReturnValue = E_OK;
 	}
 	else
 	{
-		//Do Nothing.
+		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8WriteString("YOU ARE LOCKED");
+		MCAL_UART_u8SuspendInterrupt();
+		//Alarm logic goes here!	(Elham's job)
+		GLOB_u8SystemMode = LOCKED;
+		MCAL_UART_u8ResumeInterrupt();
 	}
 	return LOC_u8ReturnValue;
 }
@@ -546,8 +687,8 @@ static STD_Type APP_SMART_HOME_u8VirtualAdminDelete(void)
 			{
 				GLOB_VirtualUserProfile[LOC_u8UARTData-ONE].password[LOC_u8Iterations] = NULL_CHAR;
 			}
-			HAL_EEPROM_u8WriteWord( ((LOC_u8UARTData-ONE)*(MAX_VIRTUAL_USER_CHAR+MAX_VIRTUAL_USER_PASS)) ,GLOB_VirtualUserProfile[LOC_u8UARTData-ONE].username);
-			HAL_EEPROM_u8WriteWord( ((LOC_u8UARTData-ONE)*(MAX_VIRTUAL_USER_CHAR+MAX_VIRTUAL_USER_PASS)) + MAX_VIRTUAL_USER_CHAR ,GLOB_VirtualUserProfile[LOC_u8UARTData-ONE].password);
+			HAL_EEPROM_u8ClearBytes( ((LOC_u8UARTData-ONE)*(MAX_VIRTUAL_USER_CHAR+MAX_VIRTUAL_USER_PASS)) ,MAX_VIRTUAL_USER_CHAR);
+			HAL_EEPROM_u8WriteWord( ((LOC_u8UARTData-ONE)*(MAX_VIRTUAL_USER_CHAR+MAX_VIRTUAL_USER_PASS)) + MAX_VIRTUAL_USER_CHAR ,MAX_VIRTUAL_USER_PASS);
 			MCAL_UART_u8ResumeInterrupt();
 		}
 		else
@@ -937,6 +1078,17 @@ static STD_Type APP_SMART_HOME_u8FeatureSelect(u8 LOC_u8AppMode)	//The selector 
 				APP_SMART_HOME_u8SelectAccess();
 				break;
 			case CONTROL_MODE:
+				switch(GLOB_u8InputOverride)
+				{
+					case VIRTUAL:
+						APP_SMART_HOME_u8VirtualControl();
+						break;
+					case KEYPAD:
+						MCAL_UART_u8SuspendInterrupt();
+						APP_SMART_HOME_u8KeypadControl();
+						MCAL_UART_u8ResumeInterrupt();
+						break;
+				}
 				break;
 			case LOCKED:
 				APP_SMART_HOME_u8Lock();
