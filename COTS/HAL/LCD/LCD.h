@@ -12,8 +12,8 @@
 
 #define CUSTOM_CHAR_MODE OFF
 
-#define LCD_DATA_PORT DIO_PortC
-#define LCD_CONTROL_PORT DIO_PortC
+#define LCD_DATA_PORT DIO_PortA
+#define LCD_CONTROL_PORT DIO_PortA
 #define LCD_DB4_PIN Pin4
 #define LCD_DB5_PIN Pin5
 #define LCD_DB6_PIN Pin6

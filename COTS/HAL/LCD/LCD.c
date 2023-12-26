@@ -155,21 +155,23 @@ STD_Type HAL_LCD_u8Init(void)
 STD_Type HAL_LCD_u8WriteChar(u8 LOC_u8Char)
 {
 	STD_Type LOC_u8ReturnType = E_NOT_OK;
-	LOC_u8ReturnType = HAL_LCD_u8Execute(LOC_u8Char>>DB_SIZE, DATA);
-	LOC_u8ReturnType = HAL_LCD_u8Execute(LOC_u8Char, DATA);
-
-	GLOB_u8LCDCurrentXCoordinate++;
-	if(GLOB_u8LCDCurrentXCoordinate > MAX_X_COOR)
+	if(LOC_u8Char)
 	{
-		GLOB_u8LCDCurrentYCoordinate++;
-		if(GLOB_u8LCDCurrentYCoordinate > MAX_Y_COOR)
-		{
-			GLOB_u8LCDCurrentYCoordinate = MIN_Y_COOR;
-		}
-		GLOB_u8LCDCurrentXCoordinate = MIN_X_COOR;
-		LOC_u8ReturnType = HAL_LCD_u8GotoCursor(GLOB_u8LCDCurrentXCoordinate,GLOB_u8LCDCurrentYCoordinate);
-	}
+		LOC_u8ReturnType = HAL_LCD_u8Execute(LOC_u8Char>>DB_SIZE, DATA);
+		LOC_u8ReturnType = HAL_LCD_u8Execute(LOC_u8Char, DATA);
 
+		GLOB_u8LCDCurrentXCoordinate++;
+		if(GLOB_u8LCDCurrentXCoordinate > MAX_X_COOR)
+		{
+			GLOB_u8LCDCurrentYCoordinate++;
+			if(GLOB_u8LCDCurrentYCoordinate > MAX_Y_COOR)
+			{
+				GLOB_u8LCDCurrentYCoordinate = MIN_Y_COOR;
+			}
+			GLOB_u8LCDCurrentXCoordinate = MIN_X_COOR;
+			LOC_u8ReturnType = HAL_LCD_u8GotoCursor(GLOB_u8LCDCurrentXCoordinate,GLOB_u8LCDCurrentYCoordinate);
+		}
+	}
 	return LOC_u8ReturnType;
 }
 

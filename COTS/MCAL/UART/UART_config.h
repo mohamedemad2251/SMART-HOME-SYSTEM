@@ -41,6 +41,7 @@
 
 #if(UART_MODE == UART_ASYNC)
 #define UART_BAUD_RATE		9600
+//#define UART_BAUD_RATE		57600
 #endif
 
 //OPTIONS:
