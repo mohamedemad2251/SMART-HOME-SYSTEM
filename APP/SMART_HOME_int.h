@@ -30,11 +30,7 @@
 
 //			ADD YOUR DEFINITIONS HERE
 //==========================================================================
-#define MAX_TEMP         28
-#define MIN_TEMP         21
-#define Unit_Conversion  4.9
-#define TEN              10
-#define FIVE_HUNDERED    500
+
 //============================MAIN FUNCTIONS================================
 STD_Type APP_SMART_HOME_u8App(void);	//Main application function to be run in main.
 //==========================================================================
@@ -42,7 +38,7 @@ STD_Type APP_SMART_HOME_u8App(void);	//Main application function to be run in ma
 
 //============================FEATURES======================================
 
-static STD_Type APP_ACControl(void)
+//add your declration function here
 
 //==========================================================================
 
