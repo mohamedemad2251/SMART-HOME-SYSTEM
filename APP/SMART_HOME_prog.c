@@ -46,12 +46,58 @@ void callback_adc_fun(void)
 	//Nothing at all
 }
 
+void callback_AlarmLED_fun(void)
+{
+	MCAL_DIO_u8TogglePinValue(ALARM_LED_PORT,ALARM_LED_PIN);
+}
+
 //NOTE: Please make sure you add callback functions for EVERY peripheral used that uses an interrupt, makes it easier.
 //You don't need to write anything inside the function, but it's better than NULL in my implementation for the drivers.
 //============================================================================
 
 //===============================FEATURES=====================================
 //Your functions will go here, like reset and such. Please make them STATIC.
+static STD_Type APP_SMART_HOME_u8BlockState(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	static LOC_u8Initialized = FALSE;
+	
+	if(LOC_u8Initialized == FALSE)
+	{
+		MCAL_TIMER_u8CallbackMilliFun(TIMER0,ALARM_DELAY_TIME,&callback_AlarmLED_fun);
+		LOC_u8Initialized = TRUE;
+	}
+	LOC_u8ReturnValue = E_OK;
+	return LOC_u8ReturnValue;
+}
+
+static STD_Type APP_SMART_HOME_u8DoorAccess(void)
+{
+
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	u8 LOC_u8UARTData = ZERO;
+	MCAL_UART_u8SendWord("Please select DOOR mode\r[1]Open\r[2]Close: ");
+	while( (LOC_u8UARTData != USER_SELECTION_1) && (LOC_u8UARTData != USER_SELECTION_2))
+	{
+		MCAL_UART_u8GetData(&LOC_u8UARTData);
+		MCAL_UART_u8SendData(LOC_u8UARTData);
+	}
+	MCAL_UART_u8SendData(ENTER_BUTTON);
+	MCAL_UART_u8SendWord("\rYou chose: ");
+	switch(LOC_u8UARTData)
+	{
+		case USER_SELECTION_1:
+		MCAL_UART_u8SendWord("Open\r");
+		LOC_u8ReturnValue =HAL_SERVO_u8TurnDegree(SERVO_DEGREE_OPEN);
+		break;
+		case USER_SELECTION_2:
+		MCAL_UART_u8SendWord("Close\r");
+		LOC_u8ReturnValue =HAL_SERVO_u8TurnDegree(SERVO_DEGREE_CLOSE);
+		break;
+	}
+	return LOC_u8ReturnValue;
+}
+
 static STD_Type APP_SMART_HOME_u8UpdateProfiles(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
@@ -163,10 +209,31 @@ static STD_Type APP_SMART_HOME_u8VirtualControl(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
 	static u8 LOC_u8Initialized = FALSE;
+	u8 LOC_u8UARTData = ZERO;
 	if(LOC_u8Initialized == FALSE)
 	{
 		MCAL_UART_u8SendWord("\r\r\r\r\r\r\r\r\r\r                         CONTROL MODE\r");
 		LOC_u8Initialized = TRUE;
+	}
+	if(GLOB_u8AccessMode == ADMIN_MODE)
+	{
+		MCAL_UART_u8SendWord("Select your option: [1]Door\rYour choice: ");
+		while(LOC_u8UARTData != DOOR_OPTION)
+		{
+			MCAL_UART_u8GetData(&LOC_u8UARTData);
+			MCAL_UART_u8SendData(LOC_u8UARTData);
+		}
+		MCAL_UART_u8SendData(ENTER_BUTTON);
+		switch(LOC_u8UARTData)
+		{
+			case DOOR_OPTION:
+			APP_SMART_HOME_u8DoorAccess();
+			break;
+		}
+	}
+	else if(GLOB_u8AccessMode == USER_MODE)
+	{
+		
 	}
 	LOC_u8ReturnValue = E_OK;
 	return LOC_u8ReturnValue;
@@ -333,7 +400,6 @@ static STD_Type APP_SMART_HOME_u8VirtualLogin(void)
 	{
 		MCAL_UART_u8SendWord("\rYOU HAVE BEEN LOCKED OUT!\r");
 		MCAL_UART_u8SuspendInterrupt();
-		//Alarm logic goes here!	(Elham's job)
 		GLOB_u8SystemMode = LOCKED;
 		MCAL_UART_u8ResumeInterrupt();
 	}
@@ -514,16 +580,10 @@ static STD_Type APP_SMART_HOME_u8KeypadUserLogin(u8 LOC_u8KeypadData)
 		HAL_LCD_u8ClearScreen();
 		HAL_LCD_u8WriteString("YOU ARE LOCKED");
 		MCAL_UART_u8SuspendInterrupt();
-		//Alarm logic goes here!	(Elham's job)
 		GLOB_u8SystemMode = LOCKED;
 		MCAL_UART_u8ResumeInterrupt();
 	}
 	return LOC_u8ReturnValue;
-}
-
-static STD_Type APP_SMART_HOME_u8Lock()
-{
-	
 }
 
 static STD_Type APP_SMART_HOME_u8VirtualAdminAdd(void)
@@ -1030,6 +1090,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 						MCAL_UART_u8SendWord("Admin!\r");
 						MCAL_UART_u8SendWord("NOTE: You no longer have access to KEYPAD!\r\r");
 						MCAL_UART_u8ResumeInterrupt();
+						GLOB_u8AccessMode = ADMIN_MODE;
 						LOC_u8SendOnce = TRUE;
 					}
 					APP_SMART_HOME_u8VirtualAdminOptions();
@@ -1040,6 +1101,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 						MCAL_UART_u8SendWord("User!\r");
 						MCAL_UART_u8SendWord("NOTE: You no longer have access to KEYPAD!\r\r");
 						MCAL_UART_u8ResumeInterrupt();
+						GLOB_u8AccessMode = USER_MODE;
 						LOC_u8SendOnce = TRUE;
 					}
 					APP_SMART_HOME_u8VirtualLogin();
@@ -1055,6 +1117,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 			MCAL_UART_u8SuspendInterrupt();
 			APP_SMART_HOME_u8KeypadUserLogin(LOC_u8KeypadData);
 			MCAL_UART_u8ResumeInterrupt();
+			GLOB_u8AccessMode = USER_MODE;
 			break;
 	}
 	return LOC_u8ReturnValue;
@@ -1065,7 +1128,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 static STD_Type APP_SMART_HOME_u8FeatureSelect(u8 LOC_u8AppMode)	//The selector of which feature is running.
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;	//Initially, we assume an error will be returned till the function fixes it.
-	if(LOC_u8AppMode <= CONTROL_MODE)
+	if(LOC_u8AppMode <= LOCKED)
 	{
 		switch(LOC_u8AppMode)
 		{
@@ -1091,7 +1154,7 @@ static STD_Type APP_SMART_HOME_u8FeatureSelect(u8 LOC_u8AppMode)	//The selector 
 				}
 				break;
 			case LOCKED:
-				APP_SMART_HOME_u8Lock();
+				APP_SMART_HOME_u8BlockState();
 				break;
 		}
 		LOC_u8ReturnValue = E_OK;
@@ -1115,12 +1178,12 @@ STD_Type APP_SMART_HOME_u8App(void)									//Main application function to be ru
 			LOC_u8ReturnValue = MCAL_ADC_u8Init(ADC0);				//Initialize the ADC on channel ADC0 (for now)
 			LOC_u8ReturnValue = HAL_LCD_u8Init();					//Initialize LCD	(Please make sure you change the configuration in .h file)
 			LOC_u8ReturnValue = MCAL_UART_u8Init();					//Initialize UART communication (Bluetooth)
-			LOC_u8ReturnValue = HAL_DC_MOTOR_u8Init(DC_MOTOR2);		//Initialize DC Motor (Please avoid using DC_MOTOR1, as it is used for the servo)
-																	//DC_MOTOR0---->TIMER0 (OC0 output), DC_MOTOR1---->TIMER1 (OC1B output), DC_MOTOR2---->TIMER2 (OC2 output)
+			//LOC_u8ReturnValue = HAL_DC_MOTOR_u8Init(DC_MOTOR2);		//Initialize DC Motor (Please avoid using DC_MOTOR1, as it is used for the servo)
+			LOC_u8ReturnValue = MCAL_TIMER_u8Init(TIMER0);			//DC_MOTOR0---->TIMER0 (OC0 output), DC_MOTOR1---->TIMER1 (OC1B output), DC_MOTOR2---->TIMER2 (OC2 output)
 			LOC_u8ReturnValue = HAL_KEYPAD_u8Init();				//Initialize Keypad (Please make sure you change the configuration in .h file)
 			LOC_u8ReturnValue = HAL_SERVO_u8Init();					//Initialize Servo Motor
 			LOC_u8ReturnValue = HAL_EEPROM_u8Init();				//Initalize EEPROM
-			
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(ALARM_LED_PORT,ALARM_LED_PIN,DIO_OUTPUT);
 			LOC_u8ReturnValue = MCAL_UART_u8CallbackFun(UART_TERMINATION_CHAR,&callback_send_uart_fun);	//Send nothing for now
 			LOC_u8ReturnValue = MCAL_ADC_u8CallbackFun(&callback_adc_fun);
 			//Add the rest of callback functions here

@@ -41,6 +41,8 @@
 #define USER_SELECTION_3				'3'
 #define USER_SELECTION_4				'4'
 
+#define DOOR_OPTION						'1'
+
 
 #define USER_1			0
 #define USER_2			1
@@ -58,7 +60,12 @@
 #define LAMP_5			4
 #define LAMP_6			5
 
+#define ALARM_LED_PORT	DIO_PortC
+#define ALARM_LED_PIN	Pin5
+#define ALARM_DELAY_TIME	500
 
+#define SERVO_DEGREE_CLOSE	0
+#define SERVO_DEGREE_OPEN	90
 //			ADD YOUR DEFINITIONS HERE
 //==========================================================================
 
