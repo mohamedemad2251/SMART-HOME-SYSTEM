@@ -122,6 +122,42 @@ static STD_Type APP_SMART_HOME_u8Reset(void)
 	return LOC_u8ReturnValue;
 }
 
+static STD_Type APP_SMART_HOME_u8ACControl(void)
+{
+	STD_Type LOC_u8ReturnValue= E_NOT_OK;
+	u16 LOC_u16SensorRead;
+	u16 LOC_u16Temperature;
+
+	MCAL_ADC_u8StartConversion();
+	MCAL_ADC_u8GetConversion(&LOC_u16SensorRead,ADC0);
+	LOC_u16Temperature = ((LOC_u16SensorRead*Unit_Conversion)-FIVE_HUNDERED)/TEN ;             //convert the sensor read to degree Celsius
+	if(LOC_u16Temperature)
+	{		
+		if(LOC_u16Temperature>MAX_TEMP)                                                       //max temp is 28
+		{
+			MCAL_DIO_u8SetPinValue(AC_PORT,AC_PIN,DIO_HIGH);
+			LOC_u8ReturnValue= E_OK;
+		}
+		else if (LOC_u16Temperature<=MIN_TEMP)                                                 //min temp is 21
+		{
+			MCAL_DIO_u8SetPinValue(AC_PORT,AC_PIN,DIO_LOW);
+			LOC_u8ReturnValue= E_OK;
+		}
+		else
+		{
+			//wait for user input?
+		}
+		LOC_u8ReturnValue= E_OK;
+	}
+	else
+	{
+		//Do Nothing
+	}
+
+	LOC_u8ReturnValue= E_OK;
+	return LOC_u8ReturnValue;
+}
+
 static STD_Type APP_SMART_HOME_u8LightLamp(u8 LOC_u8Choice,u8 LOC_u8LampState)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
@@ -337,7 +373,7 @@ static STD_Type APP_SMART_HOME_u8KeypadLamps(void)
 	else if(LOC_u8ButtonPressed == LAMP_6)
 	{
 		HAL_LCD_u8ClearScreen();
-		APP_SMART_HOME_u8VirtualDimmingLamp();
+		APP_SMART_HOME_u8KeypadDimmingLamp();
 	}
 	LOC_u8ReturnValue = E_OK;
 	return LOC_u8ReturnValue;
@@ -387,6 +423,7 @@ static STD_Type APP_SMART_HOME_u8VirtualControl(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
 	static u8 LOC_u8Initialized = FALSE;
+	static u8 LOC_u8MessageSent = FALSE;
 	u8 LOC_u8UARTData = ZERO;
 	if(LOC_u8Initialized == FALSE)
 	{
@@ -395,39 +432,52 @@ static STD_Type APP_SMART_HOME_u8VirtualControl(void)
 	}
 	if(GLOB_u8AccessMode == ADMIN_MODE)
 	{
-		MCAL_UART_u8SendWord("\rSelect your option: [1]Lamps        [2]Door\rYour choice: ");
-		while(LOC_u8UARTData != LAMP_OPTION && LOC_u8UARTData != DOOR_OPTION)
+		if(LOC_u8MessageSent == FALSE)
+		{
+			MCAL_UART_u8SendWord("\rSelect your option: [1]Lamps        [2]Door\rYour choice: ");
+			LOC_u8MessageSent = TRUE;
+		}
+		if(LOC_u8UARTData != LAMP_OPTION && LOC_u8UARTData != DOOR_OPTION)
 		{
 			MCAL_UART_u8GetData(&LOC_u8UARTData);
 			MCAL_UART_u8SendData(LOC_u8UARTData);
 		}
-		MCAL_UART_u8SendData(ENTER_BUTTON);
+		//MCAL_UART_u8SendData(ENTER_BUTTON);
 		switch(LOC_u8UARTData)
 		{
 			case LAMP_OPTION:
 				APP_SMART_HOME_u8VirtualLamps();
+				LOC_u8MessageSent = FALSE;
 				break;
 			case DOOR_OPTION:
 				APP_SMART_HOME_u8DoorAccess();
+				LOC_u8MessageSent = FALSE;
 				break;
 		}
 	}
 	else if(GLOB_u8AccessMode == USER_MODE)
 	{
-		MCAL_UART_u8SendWord("\rSelect your option: [1]Lamps\rYour choice: ");
-		while(LOC_u8UARTData != LAMP_OPTION)
+		if(LOC_u8MessageSent == FALSE)
+		{
+			MCAL_UART_u8SendWord("\rSelect your option: [1]Lamps\rYour choice: ");
+			LOC_u8MessageSent = TRUE;
+		}
+		if(LOC_u8UARTData != LAMP_OPTION)
 		{
 			MCAL_UART_u8GetData(&LOC_u8UARTData);
 			MCAL_UART_u8SendData(LOC_u8UARTData);
 		}
-		MCAL_UART_u8SendData(ENTER_BUTTON);
+		//MCAL_UART_u8SendData(ENTER_BUTTON);
 		switch(LOC_u8UARTData)
 		{
 			case LAMP_OPTION:
 			APP_SMART_HOME_u8VirtualLamps();
+			LOC_u8MessageSent = FALSE;
 			break;
 		}
 	}
+	APP_SMART_HOME_u8ACControl();
+	
 	LOC_u8ReturnValue = E_OK;
 	return LOC_u8ReturnValue;
 }
@@ -457,6 +507,8 @@ static STD_Type APP_SMART_HOME_u8KeypadControl(void)
 		APP_SMART_HOME_u8KeypadLamps();
 		LOC_u8MessageWritten = FALSE;
 	}
+	APP_SMART_HOME_u8ACControl();
+	
 	LOC_u8ReturnValue = E_OK;
 	return LOC_u8ReturnValue;
 }
@@ -1405,6 +1457,7 @@ STD_Type APP_SMART_HOME_u8App(void)									//Main application function to be ru
 			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_4_PORT,LAMP_4_PIN,DIO_OUTPUT);
 			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_5_PORT,LAMP_5_PIN,DIO_OUTPUT);
 			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_6_PORT,LAMP_6_PIN,DIO_OUTPUT);
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(AC_PORT,AC_PIN,DIO_OUTPUT);
 
 			LOC_u8ReturnValue = MCAL_UART_u8CallbackFun(UART_TERMINATION_CHAR,&callback_send_uart_fun);	//Send nothing for now
 			LOC_u8ReturnValue = MCAL_ADC_u8CallbackFun(&callback_adc_fun);
