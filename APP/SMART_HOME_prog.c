@@ -46,12 +46,58 @@ void callback_adc_fun(void)
 	//Nothing at all
 }
 
+void callback_AlarmLED_fun(void)
+{
+	MCAL_DIO_u8TogglePinValue(ALARM_LED_PORT,ALARM_LED_PIN);
+}
+
 //NOTE: Please make sure you add callback functions for EVERY peripheral used that uses an interrupt, makes it easier.
 //You don't need to write anything inside the function, but it's better than NULL in my implementation for the drivers.
 //============================================================================
 
 //===============================FEATURES=====================================
 //Your functions will go here, like reset and such. Please make them STATIC.
+static STD_Type APP_SMART_HOME_u8BlockState(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	static u8 LOC_u8Initialized = FALSE;
+	
+	if(LOC_u8Initialized == FALSE)
+	{
+		MCAL_TIMER_u8CallbackMilliFun(TIMER0,ALARM_DELAY_TIME,&callback_AlarmLED_fun);
+		LOC_u8Initialized = TRUE;
+	}
+	LOC_u8ReturnValue = E_OK;
+	return LOC_u8ReturnValue;
+}
+
+static STD_Type APP_SMART_HOME_u8DoorAccess(void)
+{
+
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	u8 LOC_u8UARTData = ZERO;
+	MCAL_UART_u8SendWord("Please select DOOR mode\r[1]Open\r[2]Close: ");
+	while( (LOC_u8UARTData != USER_SELECTION_1) && (LOC_u8UARTData != USER_SELECTION_2))
+	{
+		MCAL_UART_u8GetData(&LOC_u8UARTData);
+		MCAL_UART_u8SendData(LOC_u8UARTData);
+	}
+	MCAL_UART_u8SendData(ENTER_BUTTON);
+	MCAL_UART_u8SendWord("\rYou chose: ");
+	switch(LOC_u8UARTData)
+	{
+		case USER_SELECTION_1:
+		MCAL_UART_u8SendWord("Open\r");
+		LOC_u8ReturnValue =HAL_SERVO_u8TurnDegree(SERVO_DEGREE_OPEN);
+		break;
+		case USER_SELECTION_2:
+		MCAL_UART_u8SendWord("Close\r");
+		LOC_u8ReturnValue =HAL_SERVO_u8TurnDegree(SERVO_DEGREE_CLOSE);
+		break;
+	}
+	return LOC_u8ReturnValue;
+}
+
 static STD_Type APP_SMART_HOME_u8UpdateProfiles(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
@@ -79,73 +125,62 @@ static STD_Type APP_SMART_HOME_u8Reset(void)
 static STD_Type APP_SMART_HOME_u8LightLamp(u8 LOC_u8Choice,u8 LOC_u8LampState)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
-	if(LOC_u8Choice < MAX_LAMPS && LOC_u8LampState <= HIGH)
+	if(LOC_u8Choice < LAMP_6 && LOC_u8LampState >= OPTION_ON && LOC_u8LampState <= OPTION_OFF)
 	{
 		switch(LOC_u8Choice)
 		{
 			case LAMP_1:
 				switch(LOC_u8LampState)
 				{
-					case LOW:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin0,DIO_LOW);
+					case OPTION_OFF:
+						MCAL_DIO_u8SetPinValue(LAMP_1_PORT,LAMP_1_PIN,DIO_LOW);
 						break;
-					case HIGH:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin0,DIO_HIGH);
+					case OPTION_ON:
+						MCAL_DIO_u8SetPinValue(LAMP_1_PORT,LAMP_1_PIN,DIO_HIGH);
 						break;
 				}
 				break;
 			case LAMP_2:
 				switch(LOC_u8LampState)
 				{
-					case LOW:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin1,DIO_LOW);
+					case OPTION_OFF:
+						MCAL_DIO_u8SetPinValue(LAMP_2_PORT,LAMP_2_PIN,DIO_LOW);
 						break;
-					case HIGH:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin1,DIO_HIGH);
+					case OPTION_ON:
+						MCAL_DIO_u8SetPinValue(LAMP_2_PORT,LAMP_2_PIN,DIO_HIGH);
 						break;
 				}
 				break;
 			case LAMP_3:
 				switch(LOC_u8LampState)
 				{
-					case LOW:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin2,DIO_LOW);
+					case OPTION_OFF:
+						MCAL_DIO_u8SetPinValue(LAMP_3_PORT,LAMP_3_PIN,DIO_LOW);
 						break;
-					case HIGH:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin2,DIO_HIGH);
+					case OPTION_ON:
+						MCAL_DIO_u8SetPinValue(LAMP_3_PORT,LAMP_3_PIN,DIO_HIGH);
 						break;
 				}
 				break;
 			case LAMP_4:
 				switch(LOC_u8LampState)
 				{
-					case LOW:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin3,DIO_LOW);
+					case OPTION_OFF:
+						MCAL_DIO_u8SetPinValue(LAMP_4_PORT,LAMP_4_PIN,DIO_LOW);
 						break;
-					case HIGH:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin3,DIO_HIGH);
+					case OPTION_ON:
+						MCAL_DIO_u8SetPinValue(LAMP_4_PORT,LAMP_4_PIN,DIO_HIGH);
 						break;
 				}
 				break;
 			case LAMP_5:
 				switch(LOC_u8LampState)
 				{
-					case LOW:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin4,DIO_LOW);
+					case OPTION_OFF:
+						MCAL_DIO_u8SetPinValue(LAMP_5_PORT,LAMP_5_PIN,DIO_LOW);
 						break;
-					case HIGH:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin4,DIO_HIGH);
-						break;
-				}
-				break;
-			case LAMP_6:
-				switch(LOC_u8LampState)
-				{
-					case LOW:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin5,DIO_LOW);
-						break;
-					case HIGH:
-						MCAL_DIO_u8SetPinValue(DIO_PortB,Pin5,DIO_HIGH);
+					case OPTION_ON:
+						MCAL_DIO_u8SetPinValue(LAMP_5_PORT,LAMP_5_PIN,DIO_HIGH);
 						break;
 				}
 				break;
@@ -159,14 +194,239 @@ static STD_Type APP_SMART_HOME_u8LightLamp(u8 LOC_u8Choice,u8 LOC_u8LampState)
 	return LOC_u8ReturnValue;
 }
 
+static STD_Type APP_SMART_HOME_u8KeypadDimmingLamp(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	u8 LOC_u8ButtonPressed = KEYPAD_CLEAR;
+	u8 LOC_u8Base = ONE;
+	u8 LOC_u8Digits = ZERO;
+	u8 LOC_u8Percentage = ZERO;
+	u8 LOC_u8DimmingDigits[MAX_DIMMING_CHAR] = {};
+ 
+	while(LOC_u8ButtonPressed == KEYPAD_CLEAR)
+	{
+		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8WriteString("Percentage: ");
+		while(LOC_u8ButtonPressed != KEYPAD_ENTER && LOC_u8Digits < MAX_DIMMING_CHAR)
+		{
+			HAL_KEYPAD_u8GetButtonPressed(&LOC_u8ButtonPressed);
+			if(LOC_u8ButtonPressed >= KEYPAD_MIN_LIMIT && LOC_u8ButtonPressed <= KEYPAD_MAX_LIMIT)
+			{
+				HAL_LCD_u8WriteChar(LOC_u8ButtonPressed);
+				LOC_u8DimmingDigits[LOC_u8Digits] = (LOC_u8ButtonPressed - ASCII);
+				LOC_u8Digits++;
+			}
+			else if(LOC_u8ButtonPressed == KEYPAD_ENTER && LOC_u8Digits == ZERO)
+			{
+				LOC_u8ButtonPressed = NULL_CHAR;
+			}
+			else if(LOC_u8ButtonPressed == KEYPAD_CLEAR)
+			{
+				break;
+			}
+		}
+		if( (LOC_u8ButtonPressed >= KEYPAD_MIN_LIMIT && LOC_u8ButtonPressed <= KEYPAD_MAX_LIMIT) || (LOC_u8ButtonPressed == KEYPAD_ENTER) )
+		{
+			LOC_u8Digits = LOC_u8Digits - ONE;
+			for(LOC_u8Digits;LOC_u8Digits >= ZERO;LOC_u8Digits--)
+			{
+				LOC_u8Percentage = LOC_u8Percentage + (LOC_u8Base) * (LOC_u8DimmingDigits[LOC_u8Digits]);
+				LOC_u8Base = LOC_u8Base * BASE_TEN;
+				if(LOC_u8Digits == ZERO)
+				{
+					break;
+				}
+			}
+			if(LOC_u8Percentage > (BASE_TEN * BASE_TEN))
+			{
+				LOC_u8Percentage = (BASE_TEN * BASE_TEN);	//100%
+			}
+			MCAL_TIMER_u8SetPWM(TIMER2,LOC_u8Percentage);
+		}
+		LOC_u8Digits = ZERO;
+		LOC_u8ButtonPressed = NULL_CHAR;
+	}
+	
+	LOC_u8ReturnValue = E_OK;
+	return LOC_u8ReturnValue;
+}
+
+static STD_Type APP_SMART_HOME_u8VirtualDimmingLamp(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	u8 LOC_u8UARTData = NULL_CHAR;
+	u8 LOC_u8Base = ONE;
+	u8 LOC_u8Digits = ZERO;
+	u8 LOC_u8Percentage = ZERO;
+	u8 LOC_u8DimmingDigits[MAX_DIMMING_CHAR] = {};
+		
+	MCAL_UART_u8SendWord("Percentage: ");
+	MCAL_UART_u8ResumeInterrupt();
+	while(LOC_u8UARTData != ENTER_BUTTON && LOC_u8Digits < MAX_DIMMING_CHAR)
+	{
+		MCAL_UART_u8GetData(&LOC_u8UARTData);
+		MCAL_UART_u8SendData(LOC_u8UARTData);
+		if(LOC_u8UARTData >= KEYPAD_MIN_LIMIT && LOC_u8UARTData <= KEYPAD_MAX_LIMIT)
+		{
+			LOC_u8DimmingDigits[LOC_u8Digits] = (LOC_u8UARTData - ASCII);
+			LOC_u8Digits++;
+		}
+		else if(LOC_u8UARTData == ENTER_BUTTON && LOC_u8Digits == ZERO)
+		{
+			LOC_u8UARTData = NULL_CHAR;
+		}
+	}
+	MCAL_UART_u8SendData(ENTER_BUTTON);
+	MCAL_UART_u8SuspendInterrupt();
+	if( (LOC_u8UARTData >= KEYPAD_MIN_LIMIT && LOC_u8UARTData <= KEYPAD_MAX_LIMIT) || (LOC_u8UARTData == ENTER_BUTTON) )
+	{
+		LOC_u8Digits = LOC_u8Digits - ONE;
+		for(LOC_u8Digits;LOC_u8Digits >= ZERO;LOC_u8Digits--)
+		{
+			LOC_u8Percentage = LOC_u8Percentage + (LOC_u8Base) * (LOC_u8DimmingDigits[LOC_u8Digits]);
+			LOC_u8Base = LOC_u8Base * BASE_TEN;
+			if(LOC_u8Digits == ZERO)
+			{
+				break;
+			}
+		}
+		if(LOC_u8Percentage > (BASE_TEN * BASE_TEN))
+		{
+			LOC_u8Percentage = (BASE_TEN * BASE_TEN);	//100%
+		}
+		MCAL_TIMER_u8SetPWM(TIMER2,LOC_u8Percentage);
+	}
+// 	LOC_u8Digits = ZERO;
+// 	LOC_u8UARTData = NULL_CHAR;
+	MCAL_UART_u8ResumeInterrupt();
+	
+	LOC_u8ReturnValue = E_OK;
+	return LOC_u8ReturnValue;
+}
+
+static STD_Type APP_SMART_HOME_u8KeypadLamps(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	u8 LOC_u8ButtonPressed = NULL_CHAR;
+	u8 LOC_u8LampChoice = NULL_CHAR;
+	u8 LOC_u8LampState = NULL_CHAR;
+	
+	HAL_LCD_u8ClearScreen();
+	HAL_LCD_u8WriteString("Select a lamp!");
+	HAL_LCD_u8GotoCursor(MIN_X_COOR,MAX_Y_COOR);
+	HAL_LCD_u8WriteString("[1-6]Lamp 1-6");
+	while(LOC_u8ButtonPressed < LAMP_1 || LOC_u8ButtonPressed > LAMP_6)
+	{
+		HAL_KEYPAD_u8GetButtonPressed(&LOC_u8ButtonPressed);
+	}
+	if(LOC_u8ButtonPressed >= LAMP_1 && LOC_u8ButtonPressed <= LAMP_5)
+	{
+		LOC_u8LampChoice = LOC_u8ButtonPressed;
+		LOC_u8ButtonPressed = NULL_CHAR;
+		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8WriteString("Select an option");
+		HAL_LCD_u8GotoCursor(MIN_X_COOR,MAX_Y_COOR);
+		HAL_LCD_u8WriteString("[1]ON [2]OFF");
+		while(LOC_u8ButtonPressed != OPTION_OFF && LOC_u8ButtonPressed != OPTION_ON)
+		{
+			HAL_KEYPAD_u8GetButtonPressed(&LOC_u8ButtonPressed);
+		}
+		LOC_u8LampState = LOC_u8ButtonPressed;
+		APP_SMART_HOME_u8LightLamp(LOC_u8LampChoice,LOC_u8LampState);
+	}
+	else if(LOC_u8ButtonPressed == LAMP_6)
+	{
+		HAL_LCD_u8ClearScreen();
+		APP_SMART_HOME_u8VirtualDimmingLamp();
+	}
+	LOC_u8ReturnValue = E_OK;
+	return LOC_u8ReturnValue;
+}
+
+static STD_Type APP_SMART_HOME_u8VirtualLamps(void)
+{
+		STD_Type LOC_u8ReturnValue = E_NOT_OK;
+		u8 LOC_u8UARTData = NULL_CHAR;
+		u8 LOC_u8LampChoice = NULL_CHAR;
+		u8 LOC_u8LampState = NULL_CHAR;
+		
+		MCAL_UART_u8SendWord("Select a lamp!   ");
+		MCAL_UART_u8SendWord("[1-6]Lamp 1-6\rYour choice: ");
+		MCAL_UART_u8ResumeInterrupt();
+		while(LOC_u8UARTData < LAMP_1 || LOC_u8UARTData > LAMP_6)
+		{
+			MCAL_UART_u8GetData(&LOC_u8UARTData);
+			MCAL_UART_u8SendData(LOC_u8UARTData);
+		}
+		MCAL_UART_u8SuspendInterrupt();
+		if(LOC_u8UARTData >= LAMP_1 && LOC_u8UARTData <= LAMP_5)
+		{
+			LOC_u8LampChoice = LOC_u8UARTData;
+			LOC_u8UARTData = NULL_CHAR;
+			MCAL_UART_u8SendWord("\rSelect an option!\r");
+			MCAL_UART_u8SendWord("[1]ON     [2]OFF\rYour choice: ");
+			MCAL_UART_u8ResumeInterrupt();
+			while(LOC_u8UARTData != OPTION_OFF && LOC_u8UARTData != OPTION_ON)
+			{
+				MCAL_UART_u8GetData(&LOC_u8UARTData);
+				MCAL_UART_u8SendData(LOC_u8UARTData);
+			}
+			LOC_u8LampState = LOC_u8UARTData;
+			APP_SMART_HOME_u8LightLamp(LOC_u8LampChoice,LOC_u8LampState);
+		}
+		else if(LOC_u8UARTData == LAMP_6)
+		{
+			MCAL_UART_u8SendWord("\r\r");
+			APP_SMART_HOME_u8VirtualDimmingLamp();
+		}
+		LOC_u8ReturnValue = E_OK;
+		return LOC_u8ReturnValue;
+}
+
 static STD_Type APP_SMART_HOME_u8VirtualControl(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
 	static u8 LOC_u8Initialized = FALSE;
+	u8 LOC_u8UARTData = ZERO;
 	if(LOC_u8Initialized == FALSE)
 	{
 		MCAL_UART_u8SendWord("\r\r\r\r\r\r\r\r\r\r                         CONTROL MODE\r");
 		LOC_u8Initialized = TRUE;
+	}
+	if(GLOB_u8AccessMode == ADMIN_MODE)
+	{
+		MCAL_UART_u8SendWord("\rSelect your option: [1]Lamps        [2]Door\rYour choice: ");
+		while(LOC_u8UARTData != LAMP_OPTION && LOC_u8UARTData != DOOR_OPTION)
+		{
+			MCAL_UART_u8GetData(&LOC_u8UARTData);
+			MCAL_UART_u8SendData(LOC_u8UARTData);
+		}
+		MCAL_UART_u8SendData(ENTER_BUTTON);
+		switch(LOC_u8UARTData)
+		{
+			case LAMP_OPTION:
+				APP_SMART_HOME_u8VirtualLamps();
+				break;
+			case DOOR_OPTION:
+				APP_SMART_HOME_u8DoorAccess();
+				break;
+		}
+	}
+	else if(GLOB_u8AccessMode == USER_MODE)
+	{
+		MCAL_UART_u8SendWord("\rSelect your option: [1]Lamps\rYour choice: ");
+		while(LOC_u8UARTData != LAMP_OPTION)
+		{
+			MCAL_UART_u8GetData(&LOC_u8UARTData);
+			MCAL_UART_u8SendData(LOC_u8UARTData);
+		}
+		MCAL_UART_u8SendData(ENTER_BUTTON);
+		switch(LOC_u8UARTData)
+		{
+			case LAMP_OPTION:
+			APP_SMART_HOME_u8VirtualLamps();
+			break;
+		}
 	}
 	LOC_u8ReturnValue = E_OK;
 	return LOC_u8ReturnValue;
@@ -176,11 +436,26 @@ static STD_Type APP_SMART_HOME_u8KeypadControl(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
 	static u8 LOC_u8Initialized = FALSE;
+	u8 LOC_u8ButtonPressed = NULL_CHAR;
+	static u8 LOC_u8MessageWritten = FALSE;
 	if(LOC_u8Initialized == FALSE)
 	{
 		HAL_LCD_u8ClearScreen();
-		HAL_LCD_u8WriteString("In Control Mode!");
 		LOC_u8Initialized = TRUE;
+	}
+	if(LOC_u8MessageWritten == FALSE)
+	{
+		HAL_LCD_u8ClearScreen();
+		HAL_LCD_u8WriteString("Choose an option");
+		HAL_LCD_u8GotoCursor(MIN_X_COOR,MAX_Y_COOR);
+		HAL_LCD_u8WriteString("[1] Lamps");
+		LOC_u8MessageWritten = TRUE;
+	}
+	HAL_KEYPAD_u8GetButtonPressed(&LOC_u8ButtonPressed);
+	if(LOC_u8ButtonPressed == LAMP_OPTION)
+	{
+		APP_SMART_HOME_u8KeypadLamps();
+		LOC_u8MessageWritten = FALSE;
 	}
 	LOC_u8ReturnValue = E_OK;
 	return LOC_u8ReturnValue;
@@ -333,7 +608,6 @@ static STD_Type APP_SMART_HOME_u8VirtualLogin(void)
 	{
 		MCAL_UART_u8SendWord("\rYOU HAVE BEEN LOCKED OUT!\r");
 		MCAL_UART_u8SuspendInterrupt();
-		//Alarm logic goes here!	(Elham's job)
 		GLOB_u8SystemMode = LOCKED;
 		MCAL_UART_u8ResumeInterrupt();
 	}
@@ -514,16 +788,10 @@ static STD_Type APP_SMART_HOME_u8KeypadUserLogin(u8 LOC_u8KeypadData)
 		HAL_LCD_u8ClearScreen();
 		HAL_LCD_u8WriteString("YOU ARE LOCKED");
 		MCAL_UART_u8SuspendInterrupt();
-		//Alarm logic goes here!	(Elham's job)
 		GLOB_u8SystemMode = LOCKED;
 		MCAL_UART_u8ResumeInterrupt();
 	}
 	return LOC_u8ReturnValue;
-}
-
-static STD_Type APP_SMART_HOME_u8Lock()
-{
-	
 }
 
 static STD_Type APP_SMART_HOME_u8VirtualAdminAdd(void)
@@ -563,6 +831,8 @@ static STD_Type APP_SMART_HOME_u8VirtualAdminAdd(void)
 			LOC_u8Iterations = ZERO;
 		}
 	}
+// 	HAL_LCD_u8ClearScreen();
+// 	HAL_LCD_u8WriteInteger(LOC_u8UserCount);
 	if(GLOB_u8FreeSpaceExists == TRUE)
 	{
 		LOC_u8CheckCounter = ZERO;
@@ -688,7 +958,7 @@ static STD_Type APP_SMART_HOME_u8VirtualAdminDelete(void)
 				GLOB_VirtualUserProfile[LOC_u8UARTData-ONE].password[LOC_u8Iterations] = NULL_CHAR;
 			}
 			HAL_EEPROM_u8ClearBytes( ((LOC_u8UARTData-ONE)*(MAX_VIRTUAL_USER_CHAR+MAX_VIRTUAL_USER_PASS)) ,MAX_VIRTUAL_USER_CHAR);
-			HAL_EEPROM_u8WriteWord( ((LOC_u8UARTData-ONE)*(MAX_VIRTUAL_USER_CHAR+MAX_VIRTUAL_USER_PASS)) + MAX_VIRTUAL_USER_CHAR ,MAX_VIRTUAL_USER_PASS);
+			HAL_EEPROM_u8ClearBytes( ((LOC_u8UARTData-ONE)*(MAX_VIRTUAL_USER_CHAR+MAX_VIRTUAL_USER_PASS)) + MAX_VIRTUAL_USER_CHAR ,MAX_VIRTUAL_USER_PASS);
 			MCAL_UART_u8ResumeInterrupt();
 		}
 		else
@@ -1006,11 +1276,15 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 				MCAL_UART_u8ResumeInterrupt();
 				LOC_u8SendOnce = TRUE;
 			}	
-			MCAL_UART_u8GetData(&LOC_u8UARTData);
-			MCAL_UART_u8SendData(LOC_u8UARTData);
+			MCAL_UART_u8ResumeInterrupt();
+			if(LOC_u8UARTData != USER_SELECTION_1 && LOC_u8UARTData != USER_SELECTION_2)
+			{
+				MCAL_UART_u8GetData(&LOC_u8UARTData);
+				MCAL_UART_u8SendData(LOC_u8UARTData);
+			}
+			MCAL_UART_u8SuspendInterrupt();
 			if(LOC_u8UARTData == USER_SELECTION_1 || LOC_u8UARTData == USER_SELECTION_2)
 			{
-				MCAL_UART_u8SuspendInterrupt();
 				MCAL_UART_u8SendWord("\rYou chose: ");
 				LOC_u8SendOnce = FALSE;
 				GLOB_u8InputOverride = VIRTUAL;
@@ -1030,6 +1304,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 						MCAL_UART_u8SendWord("Admin!\r");
 						MCAL_UART_u8SendWord("NOTE: You no longer have access to KEYPAD!\r\r");
 						MCAL_UART_u8ResumeInterrupt();
+						GLOB_u8AccessMode = ADMIN_MODE;
 						LOC_u8SendOnce = TRUE;
 					}
 					APP_SMART_HOME_u8VirtualAdminOptions();
@@ -1040,6 +1315,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 						MCAL_UART_u8SendWord("User!\r");
 						MCAL_UART_u8SendWord("NOTE: You no longer have access to KEYPAD!\r\r");
 						MCAL_UART_u8ResumeInterrupt();
+						GLOB_u8AccessMode = USER_MODE;
 						LOC_u8SendOnce = TRUE;
 					}
 					APP_SMART_HOME_u8VirtualLogin();
@@ -1055,6 +1331,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 			MCAL_UART_u8SuspendInterrupt();
 			APP_SMART_HOME_u8KeypadUserLogin(LOC_u8KeypadData);
 			MCAL_UART_u8ResumeInterrupt();
+			GLOB_u8AccessMode = USER_MODE;
 			break;
 	}
 	return LOC_u8ReturnValue;
@@ -1065,7 +1342,7 @@ static STD_Type APP_SMART_HOME_u8SelectAccess(void)		//Something is wrong with t
 static STD_Type APP_SMART_HOME_u8FeatureSelect(u8 LOC_u8AppMode)	//The selector of which feature is running.
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;	//Initially, we assume an error will be returned till the function fixes it.
-	if(LOC_u8AppMode <= CONTROL_MODE)
+	if(LOC_u8AppMode <= LOCKED)
 	{
 		switch(LOC_u8AppMode)
 		{
@@ -1091,7 +1368,7 @@ static STD_Type APP_SMART_HOME_u8FeatureSelect(u8 LOC_u8AppMode)	//The selector 
 				}
 				break;
 			case LOCKED:
-				APP_SMART_HOME_u8Lock();
+				APP_SMART_HOME_u8BlockState();
 				break;
 		}
 		LOC_u8ReturnValue = E_OK;
@@ -1115,12 +1392,20 @@ STD_Type APP_SMART_HOME_u8App(void)									//Main application function to be ru
 			LOC_u8ReturnValue = MCAL_ADC_u8Init(ADC0);				//Initialize the ADC on channel ADC0 (for now)
 			LOC_u8ReturnValue = HAL_LCD_u8Init();					//Initialize LCD	(Please make sure you change the configuration in .h file)
 			LOC_u8ReturnValue = MCAL_UART_u8Init();					//Initialize UART communication (Bluetooth)
-			LOC_u8ReturnValue = HAL_DC_MOTOR_u8Init(DC_MOTOR2);		//Initialize DC Motor (Please avoid using DC_MOTOR1, as it is used for the servo)
-																	//DC_MOTOR0---->TIMER0 (OC0 output), DC_MOTOR1---->TIMER1 (OC1B output), DC_MOTOR2---->TIMER2 (OC2 output)
+			//LOC_u8ReturnValue = HAL_DC_MOTOR_u8Init(DC_MOTOR2);		//Initialize DC Motor (Please avoid using DC_MOTOR1, as it is used for the servo)
+			LOC_u8ReturnValue = MCAL_TIMER_u8Init(TIMER0);			//DC_MOTOR0---->TIMER0 (OC0 output), DC_MOTOR1---->TIMER1 (OC1B output), DC_MOTOR2---->TIMER2 (OC2 output)
+			LOC_u8ReturnValue = MCAL_TIMER_u8Init(TIMER2);
 			LOC_u8ReturnValue = HAL_KEYPAD_u8Init();				//Initialize Keypad (Please make sure you change the configuration in .h file)
 			LOC_u8ReturnValue = HAL_SERVO_u8Init();					//Initialize Servo Motor
 			LOC_u8ReturnValue = HAL_EEPROM_u8Init();				//Initalize EEPROM
-			
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(ALARM_LED_PORT,ALARM_LED_PIN,DIO_OUTPUT);
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_1_PORT,LAMP_1_PIN,DIO_OUTPUT);
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_2_PORT,LAMP_2_PIN,DIO_OUTPUT);
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_3_PORT,LAMP_3_PIN,DIO_OUTPUT);
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_4_PORT,LAMP_4_PIN,DIO_OUTPUT);
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_5_PORT,LAMP_5_PIN,DIO_OUTPUT);
+			LOC_u8ReturnValue = MCAL_DIO_u8SetPinDirection(LAMP_6_PORT,LAMP_6_PIN,DIO_OUTPUT);
+
 			LOC_u8ReturnValue = MCAL_UART_u8CallbackFun(UART_TERMINATION_CHAR,&callback_send_uart_fun);	//Send nothing for now
 			LOC_u8ReturnValue = MCAL_ADC_u8CallbackFun(&callback_adc_fun);
 			//Add the rest of callback functions here

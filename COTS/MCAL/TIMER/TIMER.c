@@ -390,7 +390,7 @@ STD_Type MCAL_TIMER_u8Init(u8 LOC_u8TimerNo)
 	}
 	return LOC_u8ReturnValue;
 }
-#if(TIMER0_INTERRUPT == TIMER_INTERRUPT_ON || TIMER1_INTERRUPT == TIMER_INTERRUPT_ON || TIMER2_INTERRUPT == TIMER_INTERRUPT_ON)
+#if( TIMER0_INTERRUPT == TIMER_INTERRUPT_ON || TIMER1_INTERRUPT == TIMER_INTERRUPT_ON || TIMER2_INTERRUPT == TIMER_INTERRUPT_ON)
 STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,void (*LOC_Pu8Ptr)(void))
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
@@ -406,7 +406,7 @@ STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,
 			GLOB_u32TIMER0OverflowNo = LOC_u32TotalTicks/(TIMER0_TICKS_MAX);
 			GLOB_voidTIMER0Gptr = LOC_Pu8Ptr;
 
-			#if(TIMER0_MODE == NORMAL)
+			#if( TIMER0_MODE == NORMAL)
 			if(LOC_u32TotalTicks > TIMER0_TICKS_MAX)
 			{
 				TCNT0 = (TIMER0_TICKS_MAX)-(u8)(((LOC_u32TotalTicks)%(TIMER0_TICKS_MAX))*(TIMER0_TICKS_MAX));
@@ -415,7 +415,7 @@ STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,
 			{
 				TCNT0 = TIMER0_TICKS_MAX - (u8) LOC_u32TotalTicks;
 			}
-			#elif(TIMER0_MODE == CTC)
+			#elif( TIMER0_MODE == CTC)
 			if(LOC_u32TotalTicks > TIMER0_TICKS_MAX)
 			{
 				LOC_u8ReturnValue = MCAL_TIMER_u8Optimize(TIMER0,LOC_u32TotalTicks);
@@ -430,7 +430,7 @@ STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,
 			LOC_u32TotalTicks = (LOC_u32MilliSeconds*MICRO_CONVERSION)/(TIMER1_PRESCALER/FREQ);
 			GLOB_u32TIMER1OverflowNo = LOC_u32TotalTicks/(TIMER1_TICKS_MAX);
 			GLOB_voidTIMER1Gptr = LOC_Pu8Ptr;
-			#if(TIMER1_MODE == NORMAL)
+			#if( TIMER1_MODE == NORMAL)
 			if(LOC_u32TotalTicks > TIMER1_TICKS_MAX)
 			{
 				TCNT1H = (u8)(((TIMER1_TICKS_MAX)-(u16)(((LOC_u32TotalTicks)%(TIMER1_TICKS_MAX))*(TIMER1_TICKS_MAX)))>>8);
@@ -440,7 +440,7 @@ STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,
 			{
 				TCNT1 = (u16) (TIMER1_TICKS_MAX - LOC_u32TotalTicks);
 			}
-			#elif(TIMER1_MODE == CTC)
+			#elif( TIMER1_MODE == CTC)
 			if(LOC_u32TotalTicks > TIMER1_TICKS_MAX)
 			{
 				LOC_u8ReturnValue = MCAL_TIMER_u8Optimize(TIMER1,LOC_u32TotalTicks);
@@ -456,7 +456,7 @@ STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,
 			GLOB_u32TIMER2OverflowNo = LOC_u32TotalTicks/(TIMER2_TICKS_MAX);
 			GLOB_voidTIMER2Gptr = LOC_Pu8Ptr;
 
-			#if(TIMER2_MODE == NORMAL)
+			#if( TIMER2_MODE == NORMAL)
 			if(LOC_u32TotalTicks > TIMER2_TICKS_MAX)
 			{
 				TCNT2 = (TIMER2_TICKS_MAX)-(u8)(((LOC_u32TotalTicks)%(TIMER2_TICKS_MAX))*(TIMER2_TICKS_MAX));
@@ -465,7 +465,7 @@ STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,
 			{
 				TCNT2 = TIMER2_TICKS_MAX - (u8) LOC_u32TotalTicks;
 			}
-			#elif(TIMER2_MODE == CTC)
+			#elif( TIMER2_MODE == CTC)
 			if(LOC_u32TotalTicks > TIMER2_TICKS_MAX)
 			{
 				LOC_u8ReturnValue = MCAL_TIMER_u8Optimize(TIMER2,LOC_u32TotalTicks);
@@ -499,7 +499,7 @@ STD_Type MCAL_TIMER_u8CallbackMicroFun(u8 LOC_u8TimerNo,u32 LOC_u32MicroSeconds,
 			GLOB_u32TIMER0OverflowNo = LOC_u32TotalTicks/(TIMER0_TICKS_MAX);
 			GLOB_voidTIMER0Gptr = LOC_Pu8Ptr;
 
-#if(TIMER0_MODE == NORMAL)
+#if( TIMER0_MODE == NORMAL)
 			if(LOC_u32TotalTicks > TIMER0_TICKS_MAX)
 			{
 				TCNT0 = (TIMER0_TICKS_MAX)-(u8)(((LOC_u32TotalTicks)%(TIMER0_TICKS_MAX))*(TIMER0_TICKS_MAX));
@@ -508,7 +508,7 @@ STD_Type MCAL_TIMER_u8CallbackMicroFun(u8 LOC_u8TimerNo,u32 LOC_u32MicroSeconds,
 			{
 				TCNT0 = TIMER0_TICKS_MAX - (u8) LOC_u32TotalTicks;
 			}
-#elif(TIMER0_MODE == CTC)
+#elif( TIMER0_MODE == CTC)
 			if(LOC_u32TotalTicks > TIMER0_TICKS_MAX)
 			{
 				LOC_u8ReturnValue = MCAL_TIMER_u8Optimize(TIMER0,LOC_u32TotalTicks);
@@ -523,7 +523,7 @@ STD_Type MCAL_TIMER_u8CallbackMicroFun(u8 LOC_u8TimerNo,u32 LOC_u32MicroSeconds,
 			LOC_u32TotalTicks = (LOC_u32MicroSeconds)/(TIMER1_PRESCALER/FREQ);
 			GLOB_u32TIMER1OverflowNo = LOC_u32TotalTicks/(TIMER1_TICKS_MAX);
 			GLOB_voidTIMER1Gptr = LOC_Pu8Ptr;
-#if(TIMER1_MODE == NORMAL)
+#if( TIMER1_MODE == NORMAL)
 			if(LOC_u32TotalTicks > TIMER1_TICKS_MAX)
 			{
 				TCNT1 = (TIMER1_TICKS_MAX)-(u16)(((LOC_u32TotalTicks)%(TIMER1_TICKS_MAX))*(TIMER1_TICKS_MAX));
@@ -532,7 +532,7 @@ STD_Type MCAL_TIMER_u8CallbackMicroFun(u8 LOC_u8TimerNo,u32 LOC_u32MicroSeconds,
 			{
 				TCNT1 = TIMER1_TICKS_MAX - (u16) LOC_u32TotalTicks;
 			}
-#elif(TIMER1_MODE == CTC)
+#elif( TIMER1_MODE == CTC)
 			if(LOC_u32TotalTicks > TIMER1_TICKS_MAX)
 			{
 				LOC_u8ReturnValue = MCAL_TIMER_u8Optimize(TIMER1,LOC_u32TotalTicks);
@@ -548,7 +548,7 @@ STD_Type MCAL_TIMER_u8CallbackMicroFun(u8 LOC_u8TimerNo,u32 LOC_u32MicroSeconds,
 			GLOB_u32TIMER2OverflowNo = LOC_u32TotalTicks/(TIMER2_TICKS_MAX);
 			GLOB_voidTIMER2Gptr = LOC_Pu8Ptr;
 
-#if(TIMER2_MODE == NORMAL)
+#if( TIMER2_MODE == NORMAL)
 			if(LOC_u32TotalTicks > TIMER2_TICKS_MAX)
 			{
 				TCNT2 = (TIMER2_TICKS_MAX)-(u8)(((LOC_u32TotalTicks)%(TIMER2_TICKS_MAX))*(TIMER2_TICKS_MAX));
@@ -557,7 +557,7 @@ STD_Type MCAL_TIMER_u8CallbackMicroFun(u8 LOC_u8TimerNo,u32 LOC_u32MicroSeconds,
 			{
 				TCNT2 = TIMER2_TICKS_MAX - (u8) LOC_u32TotalTicks;
 			}
-#elif(TIMER2_MODE == CTC)
+#elif( TIMER2_MODE == CTC)
 			if(LOC_u32TotalTicks > TIMER2_TICKS_MAX)
 			{
 				LOC_u8ReturnValue = MCAL_TIMER_u8Optimize(TIMER2,LOC_u32TotalTicks);
@@ -578,7 +578,7 @@ STD_Type MCAL_TIMER_u8CallbackMicroFun(u8 LOC_u8TimerNo,u32 LOC_u32MicroSeconds,
 	return LOC_u8ReturnValue;
 }
 
-#if(TIMER0_MODE == NORMAL && TIMER0_INTERRUPT == TIMER_INTERRUPT_ON)
+#if( TIMER0_MODE == NORMAL && TIMER0_INTERRUPT == TIMER_INTERRUPT_ON)
 ISR(TIMER0_OVF_vect)
 {
 	static u32 LOC_u32Count;
@@ -593,7 +593,7 @@ ISR(TIMER0_OVF_vect)
 
 	}
 }
-#elif(TIMER0_MODE == CTC && TIMER0_INTERRUPT == TIMER_INTERRUPT_ON)
+#elif( TIMER0_MODE == CTC && TIMER0_INTERRUPT == TIMER_INTERRUPT_ON)
 ISR(TIMER0_COMP_vect)
 {
 	static u32 LOC_u32Count;
@@ -609,7 +609,7 @@ ISR(TIMER0_COMP_vect)
 }
 #endif
 
-#if(TIMER1_MODE == NORMAL && TIMER1_INTERRUPT == TIMER_INTERRUPT_ON)
+#if( TIMER1_MODE == NORMAL && TIMER1_INTERRUPT == TIMER_INTERRUPT_ON)
 ISR(TIMER1_OVF_vect)
 {
 	static u32 LOC_u32Count;
@@ -624,7 +624,7 @@ ISR(TIMER1_OVF_vect)
 
 	}
 }
-#elif(TIMER1_MODE == CTC && TIMER1_INTERRUPT == TIMER_INTERRUPT_ON)
+#elif( TIMER1_MODE == CTC && TIMER1_INTERRUPT == TIMER_INTERRUPT_ON)
 ISR(TIMER1_COMPA_vect)
 {
 	static u32 LOC_u32Count;
@@ -640,7 +640,7 @@ ISR(TIMER1_COMPA_vect)
 }
 #endif
 
-#if(TIMER2_MODE == NORMAL && TIMER2_INTERRUPT == TIMER_INTERRUPT_ON)
+#if( TIMER2_MODE == NORMAL && TIMER2_INTERRUPT == TIMER_INTERRUPT_ON)
 ISR(TIMER2_OVF_vect)
 {
 	static u32 LOC_u32Count;
@@ -655,7 +655,7 @@ ISR(TIMER2_OVF_vect)
 
 	}
 }
-#elif(TIMER2_MODE == CTC && TIMER2_INTERRUPT == TIMER_INTERRUPT_ON)
+#elif( TIMER2_MODE == CTC && TIMER2_INTERRUPT == TIMER_INTERRUPT_ON)
 ISR(TIMER2_COMP_vect)
 {
 	static u32 LOC_u32Count;
@@ -672,7 +672,7 @@ ISR(TIMER2_COMP_vect)
 #endif
 
 //The following function is not updated!
-#elif(TIMER0_INTERRUPT == TIMER_INTERRUPT_OFF && TIMER1_INTERRUPT == TIMER_INTERRUPT_OFF && TIMER2_INTERRUPT == TIMER_INTERRUPT_OFF)
+#elif( TIMER0_INTERRUPT == TIMER_INTERRUPT_OFF && TIMER1_INTERRUPT == TIMER_INTERRUPT_OFF && TIMER2_INTERRUPT == TIMER_INTERRUPT_OFF)
 STD_Type MCAL_TIMER_u8DelayMilliSeconds(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,u8 * LOC_Pu8TimeDone)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
@@ -681,7 +681,7 @@ STD_Type MCAL_TIMER_u8DelayMilliSeconds(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds
 	static u32 LOC_u32TotalTicksPrev;	//Since we don't want to have busy waiting, we'll check if the prev
 	//ticks are equal to the current or they changed. So that the flow of code
 	//does not stop.
-#if(TIMER0_PRESCALER != 0)
+#if( TIMER0_PRESCALER != 0)
 	u32 LOC_u32TotalTicksCurrent = (LOC_u32MilliSeconds*MICRO_CONVERSION*FREQ)/(TIMER0_PRESCALER);
 #else
 	u32 LOC_u32TotalTicksCurrent = (LOC_u32MilliSeconds*MICRO_CONVERSION*FREQ);
@@ -699,13 +699,13 @@ STD_Type MCAL_TIMER_u8DelayMilliSeconds(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds
 		case TIMER0:
 			if(LOC_u32TotalTicksCurrent != LOC_u32TotalTicksPrev)
 			{
-#if(TIMER0_MODE == NORMAL)
+#if( TIMER0_MODE == NORMAL)
 				TCNT0 = (TIMER0_TICKS_MAX)-(u8)(((LOC_u32TotalTicksCurrent)%(TIMER0_TICKS_MAX))*(TIMER0_TICKS_MAX));
-#elif(TIMER0_MODE == CTC)
+#elif( TIMER0_MODE == CTC)
 				LOC_u8ReturnValue = MCAL_TIMER_u8Optimize(TIMER0,LOC_u32TotalTicksCurrent);
 #endif
 			}
-#if(TIMER0_MODE == NORMAL)
+#if( TIMER0_MODE == NORMAL)
 			if(GET_BIT(TIFR,TOV0))
 			{
 				LOC_u32OVCounts++;
@@ -716,7 +716,7 @@ STD_Type MCAL_TIMER_u8DelayMilliSeconds(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds
 				}
 				SET_BIT(TIFR,TOV0);	//Clear the flag.
 			}
-#elif(TIMER0_MODE == CTC)
+#elif( TIMER0_MODE == CTC)
 			if(GET_BIT(TIFR,OCF0))
 			{
 				LOC_u32OVCounts++;
@@ -741,20 +741,20 @@ STD_Type MCAL_TIMER_u8DelayMilliSeconds(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds
 }
 #endif
 
-#if(TIMER1_MODE == PWM)
+#if( TIMER1_MODE == PWM)
 STD_Type MCAL_TIMER_u8SetTIMER1PWM(u8 LOC_u8Percentage,u8 LOC_u8Frequency)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
 	if(LOC_u8Percentage >= ZERO && LOC_u8Percentage <= PERCENT && LOC_u8Frequency > ZERO)
 	{
-#if(TIMER1_RESOLUTION == COMPARE_MATCH)
-#if(OC1B_MODE == OC1B_CLEAR)
+#if( TIMER1_RESOLUTION == COMPARE_MATCH)
+#if( OC1B_MODE == OC1B_CLEAR)
 		OCR1A =	(u16)((u32)((u32)MILLI_CONVERSION*MICRO_CONVERSION*FREQ)/((u32)TIMER1_PRESCALER*LOC_u8Frequency));
 		OCR1B = (u16)((u32)LOC_u8Percentage*((u32)MILLI_CONVERSION*MICRO_CONVERSION*FREQ)/((u32)TIMER1_PRESCALER*LOC_u8Frequency*PERCENT));
 		LOC_u8ReturnValue = E_OK;
 #endif
-#elif(TIMER1_RESOLUTION == TEN_BIT)
-#if(OC1A_MODE == OC1A_CLEAR)
+#elif( TIMER1_RESOLUTION == TEN_BIT)
+#if( OC1A_MODE == OC1A_CLEAR)
 		OCR1A = (u16)((u32)LOC_u8Percentage*(TIMER1_PWM_TOP)/PERCENT);
 		LOC_u8ReturnValue = E_OK;
 #endif
@@ -768,7 +768,7 @@ STD_Type MCAL_TIMER_u8SetTIMER1PWM(u8 LOC_u8Percentage,u8 LOC_u8Frequency)
 }
 #endif
 
-#if(TIMER0_MODE == PWM || TIMER2_MODE == PWM)
+#if( TIMER0_MODE == PWM || TIMER2_MODE == PWM)
 STD_Type MCAL_TIMER_u8SetPWM(u8 LOC_u8TimerNo,u8 LOC_u8Percentage)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
@@ -777,13 +777,13 @@ STD_Type MCAL_TIMER_u8SetPWM(u8 LOC_u8TimerNo,u8 LOC_u8Percentage)
 		switch(LOC_u8TimerNo)
 		{
 		case TIMER0:
-#if(OC0_MODE == OC0_CLEAR)
+#if( OC0_MODE == OC0_CLEAR)
 			OCR0 = (u8)((u32)LOC_u8Percentage*(TIMER0_TICKS_MAX)/PERCENT);
 			LOC_u8ReturnValue = E_OK;
 #endif
 			break;
 		case TIMER2:
-#if(OC2_MODE == OC2_CLEAR)
+#if( OC2_MODE == OC2_CLEAR)
 			OCR2 = (u8)((u32)LOC_u8Percentage*(TIMER2_TICKS_MAX)/PERCENT);
 			LOC_u8ReturnValue = E_OK;
 #endif
@@ -798,13 +798,13 @@ STD_Type MCAL_TIMER_u8SetPWM(u8 LOC_u8TimerNo,u8 LOC_u8Percentage)
 }
 #endif
 
-#if(ICU_MODE == ICU_ON)
+#if( ICU_MODE == ICU_ON)
 STD_Type MCAL_TIMER_u8ICUInit(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
 	MCAL_DIO_u8SetPinDirection(ICP1_PORT,ICP1_PIN,DIO_INPUT);
 #ifdef TIMER1_RESOLUTION
-#if(TIMER1_RESOLUTION == COMPARE_MATCH)
+#if( TIMER1_RESOLUTION == COMPARE_MATCH)
 	OCR1A = 0xFFFF;		//TOP = 65,535
 #endif
 #endif

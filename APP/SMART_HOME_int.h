@@ -41,6 +41,9 @@
 #define USER_SELECTION_3				'3'
 #define USER_SELECTION_4				'4'
 
+#define LAMP_OPTION						'1'
+#define DOOR_OPTION						'2'
+
 
 #define USER_1			0
 #define USER_2			1
@@ -51,14 +54,34 @@
 #endif
 
 #define MAX_LAMPS       6
-#define LAMP_1			0
-#define LAMP_2			1
-#define LAMP_3			2
-#define LAMP_4			3
-#define LAMP_5			4
-#define LAMP_6			5
+#define LAMP_1			'1'
+#define LAMP_2			'2'
+#define LAMP_3			'3'
+#define LAMP_4			'4'
+#define LAMP_5			'5'
+#define LAMP_6			'6'
+#define OPTION_ON		'1'
+#define OPTION_OFF		'2'
+#define LAMP_1_PORT		DIO_PortC
+#define LAMP_1_PIN		Pin2
+#define LAMP_2_PORT		DIO_PortC
+#define LAMP_2_PIN		Pin3
+#define LAMP_3_PORT		DIO_PortC
+#define LAMP_3_PIN		Pin4
+#define LAMP_4_PORT		DIO_PortC
+#define LAMP_4_PIN		Pin6
+#define LAMP_5_PORT		DIO_PortC
+#define LAMP_5_PIN		Pin7
+#define LAMP_6_PORT		DIO_PortD
+#define LAMP_6_PIN		Pin7
+#define MAX_DIMMING_CHAR	3
 
+#define ALARM_LED_PORT	DIO_PortC
+#define ALARM_LED_PIN	Pin5
+#define ALARM_DELAY_TIME	500
 
+#define SERVO_DEGREE_CLOSE	0
+#define SERVO_DEGREE_OPEN	90
 //			ADD YOUR DEFINITIONS HERE
 //==========================================================================
 
