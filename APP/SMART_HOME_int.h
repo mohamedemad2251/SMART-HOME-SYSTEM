@@ -76,16 +76,18 @@
 #define LAMP_6_PIN		Pin7
 #define MAX_DIMMING_CHAR	3
 
-#define MAX_TEMP          28
-#define MIN_TEMP          21
-#define Unit_Conversion   4.9
-#define TEN               10
-#define FIVE_HUNDERED     500
-#define AC_PORT			  DIO_PortD
-#define AC_PIN			  Pin2
+#define MAX_TEMP			28
+#define MAX_SENSOR_TEMP		125
+#define MIN_TEMP			21
+#define Unit_Conversion		4.9
+#define TEN					10
+#define FIVE_HUNDERED		500
+#define AC_PORT				DIO_PortD
+#define AC_PIN				Pin2
+#define DEGREE_SYMBOL		0xDF
 
-#define ALARM_LED_PORT	DIO_PortC
-#define ALARM_LED_PIN	Pin5
+#define ALARM_LED_PORT		DIO_PortC
+#define ALARM_LED_PIN		Pin5
 #define ALARM_DELAY_TIME	500
 
 #define SERVO_DEGREE_CLOSE	0
