@@ -26,8 +26,23 @@ typedef struct
 	u8 username[MAX_KEYPAD_USER_CHAR];
 	u8 password[MAX_KEYPAD_USER_PASS];
 }KeypadUser;
+typedef struct
+{
+ u8 LED_1;	
+ u8 LED_2;	
+ u8 LED_3;	
+ u8 LED_4;	
+ u8 LED_5;
+ u16 LED_Percentage;	
+ u8 Temperature;
+ u8 AC;
+ u8 Door;	
+}Status;
+
 VirtualUser GLOB_VirtualUserProfile[MAX_USERS];
 KeypadUser GLOB_KeypadUserProfile[MAX_USERS];
+Status GLOB_StatusControl={};
+
 //============================================================================
 
 //============================CALLBACK FUNCTIONS==============================	//These functions don't follow the naming convention
@@ -57,6 +72,131 @@ void callback_AlarmLED_fun(void)
 
 //===============================FEATURES=====================================
 //Your functions will go here, like reset and such. Please make them STATIC.
+
+static STD_Type APP_SMART_HOME_u8LCDData(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	HAL_LCD_u8GotoCursor(COL_0,ROW_0);
+	HAL_LCD_u8WriteString("LD:       D:");
+	HAL_LCD_u8GotoCursor(COL_0,ROW_1);
+	LOC_u8ReturnValue = HAL_LCD_u8WriteString("AC:  T:      d:");
+	return LOC_u8ReturnValue;
+}
+
+static STD_Type APP_SMART_HOME_u8LCDStatus(void)
+{
+	STD_Type LOC_u8ReturnValue = E_NOT_OK;
+	
+	       //LED 1 -> 5
+		   if(GLOB_StatusControl.LED_1 == FALSE)
+		   {
+			  HAL_LCD_u8GotoCursor(COL_3,ROW_0);
+			  HAL_LCD_u8WriteChar(' ');
+		   }
+		
+		   else
+		    {
+			   HAL_LCD_u8GotoCursor(COL_3,ROW_0);
+			   HAL_LCD_u8WriteChar('1');
+		    }
+
+			if(GLOB_StatusControl.LED_2 == FALSE)
+			{
+				HAL_LCD_u8GotoCursor(COL_4,ROW_0);
+				HAL_LCD_u8WriteChar(' ');
+			}
+			
+			else
+			{
+				HAL_LCD_u8GotoCursor(COL_4,ROW_0);
+				HAL_LCD_u8WriteChar('2');
+			}
+			
+			if(GLOB_StatusControl.LED_3 == FALSE)
+			{
+			    HAL_LCD_u8GotoCursor(COL_5,ROW_0);
+				HAL_LCD_u8WriteChar(' ');
+			}
+					
+			else
+			{
+				 HAL_LCD_u8GotoCursor(COL_5,ROW_0);
+				 HAL_LCD_u8WriteChar('3');
+			}
+			
+			if(GLOB_StatusControl.LED_4 == FALSE)
+			{
+				HAL_LCD_u8GotoCursor(COL_6,ROW_0);
+				HAL_LCD_u8WriteChar(' ');
+			}
+			
+			else
+			{
+				HAL_LCD_u8GotoCursor(COL_6,ROW_0);
+				HAL_LCD_u8WriteChar('4');
+			}
+			
+			if(GLOB_StatusControl.LED_5 == FALSE)
+			{
+				HAL_LCD_u8GotoCursor(COL_7,ROW_0);
+				HAL_LCD_u8WriteChar(' ');
+			}
+			
+			else
+			{
+				HAL_LCD_u8GotoCursor(COL_7,ROW_0);
+				HAL_LCD_u8WriteChar('5');
+			}
+			
+			//Percentage_LED 
+			HAL_LCD_u8GotoCursor(COL_12,ROW_0);
+			HAL_LCD_u8WriteInteger(GLOB_StatusControl.LED_Percentage);
+			HAL_LCD_u8WriteChar('%');
+			
+			//Air_Condition (AC)
+			if(GLOB_StatusControl.AC == FALSE)
+			{
+				HAL_LCD_u8GotoCursor(COL_3,ROW_1);
+				HAL_LCD_u8WriteChar('0');
+			}
+			
+			else
+			{
+		        HAL_LCD_u8GotoCursor(COL_3,ROW_1);
+		        HAL_LCD_u8WriteChar('1');
+			}
+			
+			//Temperature
+			if(GLOB_StatusControl.Temperature>ZERO && GLOB_StatusControl.Temperature<=MAX_SENSOR_TEMP)
+			{
+	           	HAL_LCD_u8GotoCursor(COL_7,ROW_1);
+	           	HAL_LCD_u8WriteInteger(GLOB_StatusControl.Temperature);
+	           	HAL_LCD_u8WriteChar(DEGREE_SYMBOL);
+				HAL_LCD_u8WriteChar('C');
+			}
+			
+			else
+			{
+				//Do nothing
+			}
+			
+			//Door
+			if(GLOB_StatusControl.Door == FALSE)
+			{
+				HAL_LCD_u8GotoCursor(COL_15,ROW_1);
+				HAL_LCD_u8WriteChar('C');  //The door is closed
+			}
+			
+			else
+			{
+				HAL_LCD_u8GotoCursor(COL_15,ROW_1);
+				HAL_LCD_u8WriteChar('O');  //The door is opened
+			}	
+			
+			LOC_u8ReturnValue = E_OK;
+			return LOC_u8ReturnValue;
+}
+	
 static STD_Type APP_SMART_HOME_u8BlockState(void)
 {
 	STD_Type LOC_u8ReturnValue = E_NOT_OK;
