@@ -150,6 +150,8 @@ static STD_Type APP_SMART_HOME_u8LCDStatus(void)
 			
 			//Percentage_LED 
 			HAL_LCD_u8GotoCursor(COL_12,ROW_0);
+			HAL_LCD_u8WriteString("    ");
+			HAL_LCD_u8GotoCursor(COL_12,ROW_0);
 			HAL_LCD_u8WriteInteger(GLOB_StatusControl.LED_Percentage);
 			HAL_LCD_u8WriteChar('%');
 			
@@ -169,6 +171,8 @@ static STD_Type APP_SMART_HOME_u8LCDStatus(void)
 			//Temperature
 			if(GLOB_StatusControl.Temperature>ZERO && GLOB_StatusControl.Temperature<=MAX_SENSOR_TEMP)
 			{
+				HAL_LCD_u8GotoCursor(COL_7,ROW_1);
+				HAL_LCD_u8WriteString("     ");
 	           	HAL_LCD_u8GotoCursor(COL_7,ROW_1);
 	           	HAL_LCD_u8WriteInteger(GLOB_StatusControl.Temperature);
 	           	HAL_LCD_u8WriteChar(DEGREE_SYMBOL);
