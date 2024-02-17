@@ -409,7 +409,7 @@ STD_Type MCAL_TIMER_u8CallbackMilliFun(u8 LOC_u8TimerNo,u32 LOC_u32MilliSeconds,
 			#if( TIMER0_MODE == NORMAL)
 			if(LOC_u32TotalTicks > TIMER0_TICKS_MAX)
 			{
-				TCNT0 = (TIMER0_TICKS_MAX)-(u8)(((LOC_u32TotalTicks)%(TIMER0_TICKS_MAX))*(TIMER0_TICKS_MAX));
+				TCNT0 = (TIMER0_TICKS_MAX)-(u8)(((LOC_u32TotalTicks)%(TIMER0_TICKS_MAX)));
 			}
 			else
 			{
